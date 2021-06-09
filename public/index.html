@@ -41,18 +41,20 @@
 
 		<!-- define a simple camera -->
 		<a-entity camera="active: true" look-controls wasd-controls position="0 1.6 0">
-      <!-- cursor not needed yet
-			<a-entity cursor="fuse: true; fuseTimeout: 500" position="0 0 -0.1" geometry="primitive: ring; radiusInner: 0.002; radiusOuter: 0.003"
-			 material="color: black; shader: flat" rayOrigin="mouse">
+			<a-entity cursor="fuse: true; fuseTimeout: 1000" position="0 0 -0.1" geometry="primitive: circle; radius: 0.003"
+			 material="color: black; shader: flat">
 			</a-entity>
-      -->
 		</a-entity>
 
 
-		<!-- here define the content to display -->
-		<a-box position='-0.5 1.5 -1' material='color: blue;' scale="0.2 0.2 0.2" resonancesource="src:#left"></a-box>
-		<a-box position='0.5 1.5 -1' material='color: red;' scale="0.2 0.2 0.2" resonancesource="src:#right"></a-box>
+		<!-- ----here define the content to display---- -->
+    <!-- here define patients -->
+		<a-box position='-0.5 1.5 -1' animation="property: object3D.position.x; to: -1.0; dur: 1000; dir: alternate; easing: easeInOutElastic; loop: true" material='color: blue;' depth='0.2' height='0.2' width='0.2' resonancesource="src:#left"></a-box>
+		<a-box position='0.5 1.5 -1' material='color: red;' depth='0.2' height='0.2' width='0.2' resonancesource="src:#right"></a-box>
 
+    <!-- here define room with wireframe outlines for reference CHANGES NEED TO BE MIRRORED IN resonanceScene.js
+    "20 m² per bed for common rooms" according to Valentin, Andreas & Ferdinande, Patrick. (2011). Recommendations on basic requirements for intensive care units: Structural and organizational aspects. Intensive Care Medicine. 37. 1575-1587. 10.1007/s00134-011-2300-7. using 63 m² for now -->
+    <a-box position='0 1.5 0' depth='7' height='3' width='9' material='color: green; side: back; wireframe: true'></a-box>
 
 	</a-scene>
 

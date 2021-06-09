@@ -13,46 +13,36 @@ AFRAME.registerComponent('resonancesystem', {
     // Connect the scene’s binaural output to stereo out.
     this.resonanceAudioScene.output.connect(this.audioContext.destination);
 
-    //Source Handling (TODO: refactor out)
+    //Source Handling
     let sourceEls = document.querySelectorAll('[resonancesource]');
     //register all source components
     let self = this;
     sourceEls.forEach(function (e) {
       self.registerMe(e.components.resonancesource)
     });
-    //create all Sources //TODO put in registerMe
-    this.sources.forEach(function (s) {
-      s.system = self;
-      s.resonanceAudioScene = self.resonanceAudioScene;
-      s.audioContext = self.audioContext;
-      s.audioElementSource = s.audioContext.createMediaElementSource(s.sourceNode);
-      s.sceneSource = s.resonanceAudioScene.createSource();
-      s.sceneSource.setGain(s.data.gain);
-      s.audioElementSource.connect(s.sceneSource.input);
-      if (s.data.autoplay) { s.sourceNode.play() }
-    });
-
+    
     this.audioContext.suspend();
 
     // TODO: This is crashing in recent versions of Resonance for me, and I'm
     // not sure why. It does run successfully without it, though.
     // Rough room dimensions in meters (estimated from model in Blender.)
-    /*let roomDimensions = {
-      width : 6,
+    let roomDimensions = {
+      width : 9,
       height : 3,
-      depth : 6
+      depth : 7
     };
     // Simplified view of the materials that make up the scene.
     let roomMaterials = {
-      left : 'plywood-panel', // Garage walls
-      right : 'plywood-panel',
-      front : 'plywood-panel',
-      back : 'metal', // To account for the garage door
-      down : 'polished-concrete-or-tile', // garage floor
-      up : 'wood-ceiling'
+      left : 'plaster-smooth', // WALLS
+      right : 'glass-thick', // windows on one side
+      front : 'plaster-smooth',
+      back : 'plaster-smooth',
+      down : 'linoleum-on-concrete', // floor
+      up : 'acoustic-ceiling-tiles' //a hospital should have those
     };
-    resonance.setRoomProperties(roomDimensions, roomMaterials);*/
+    this.resonanceAudioScene.setRoomProperties(roomDimensions, roomMaterials);
   },
+
   /**
    * Tick function that will be wrapped to be throttled.
    */
@@ -62,8 +52,16 @@ AFRAME.registerComponent('resonancesystem', {
   },
 
   registerMe: function (el) {
+    //create and finish init of audio source
+    el.system = this;
+    el.resonanceAudioScene = this.resonanceAudioScene;
+    el.audioContext = this.audioContext;
+    el.audioElementSource = el.audioContext.createMediaElementSource(el.sourceNode);
+    el.sceneSource = el.resonanceAudioScene.createSource();
+    el.sceneSource.setGain(el.data.gain);
+    el.audioElementSource.connect(el.sceneSource.input);
+
     this.sources.push(el);
-    //TODO add logic to register source?
   },
 
   unregisterMe: function (el) {
@@ -72,6 +70,9 @@ AFRAME.registerComponent('resonancesystem', {
     //TODO add logic to un-register source?
   },
 
+  /**
+   * Circumvent browser autoplay block
+   */
   run: function () {
     this.audioContext.resume();
     this.sources.forEach(function (s) {
