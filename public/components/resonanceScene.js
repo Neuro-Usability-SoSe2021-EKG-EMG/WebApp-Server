@@ -2,7 +2,7 @@
 AFRAME.registerComponent('resonancesystem', {
   init: function () {
     // Set up the tick throttling
-    this.tick = AFRAME.utils.throttleTick(this.tick, 30, this);
+    this.tick = AFRAME.utils.throttleTick(this.tick, 50, this);
 
     // List of Sources handles by resonance //TODO
     this.sources = [];
@@ -23,22 +23,21 @@ AFRAME.registerComponent('resonancesystem', {
     
     this.audioContext.suspend();
 
-    // TODO: This is crashing in recent versions of Resonance for me, and I'm
-    // not sure why. It does run successfully without it, though.
-    // Rough room dimensions in meters (estimated from model in Blender.)
+    // Set up a 80m², 4 bed ICU
+    // NEEDS TO BE MIRRORED IN index.html for correct representation
     let roomDimensions = {
-      width : 9,
+      width : 10,
       height : 3,
-      depth : 7
+      depth : 8
     };
-    // Simplified view of the materials that make up the scene.
+    // Simplified view of the materials that make up the scene
     let roomMaterials = {
       left : 'plaster-smooth', // WALLS
       right : 'glass-thick', // windows on one side
       front : 'plaster-smooth',
       back : 'plaster-smooth',
       down : 'linoleum-on-concrete', // floor
-      up : 'acoustic-ceiling-tiles' //a hospital should have those
+      up : 'acoustic-ceiling-tiles' // a hospital should have those
     };
     this.resonanceAudioScene.setRoomProperties(roomDimensions, roomMaterials);
   },
@@ -53,12 +52,15 @@ AFRAME.registerComponent('resonancesystem', {
 
   registerMe: function (el) {
     //create and finish init of audio source
+    console.log("Registering audio source: ");
+    console.log(el);
     el.system = this;
     el.resonanceAudioScene = this.resonanceAudioScene;
     el.audioContext = this.audioContext;
     el.audioElementSource = el.audioContext.createMediaElementSource(el.sourceNode);
     el.sceneSource = el.resonanceAudioScene.createSource();
     el.sceneSource.setGain(el.data.gain);
+    el.sceneSource.setSourceWidth(el.data.width);
     el.audioElementSource.connect(el.sceneSource.input);
 
     this.sources.push(el);
@@ -90,6 +92,7 @@ AFRAME.registerComponent('resonancesource', {
     loop: { type: 'boolean', default: true },
     autoplay: { type: 'boolean', default: true },
     gain: { type: 'number', default: 1 },
+    width: {type: 'number', default: 0}
   },
   init: function () {
     this.pos = new AFRAME.THREE.Vector3();
@@ -102,13 +105,14 @@ AFRAME.registerComponent('resonancesource', {
 
 
     //tick throttle for performance
-    this.thick = AFRAME.utils.throttleTick(this.tick, 30, this);
+    this.thick = AFRAME.utils.throttleTick(this.tick, 50, this);
 
     //this.el.sceneEl.addEventListener('loaded', this.afterLoadInit.bind(this));
 
     //get audio source from aframe asset management with #id
-    const el = document.querySelector(this.data.src)
-    this.sourceNode = document.querySelector(this.data.src)
+    this.sourceNode = document.querySelector(this.data.src);
+    console.log(this);
+    console.log(this.sourceNode);
     //set looping
     if (this.data.loop) {
       this.sourceNode.setAttribute('loop', 'true');
@@ -121,21 +125,118 @@ AFRAME.registerComponent('resonancesource', {
     this.setPos();
   },
 
-  afterLoadInit: function () {
-    //get resonance System
-    this.system = this.el.sceneEl.components['resonancesystem'];
-    this.resonanceAudioScene = system.resonanceAudioScene;
-    this.audioContext = system.audioContext;
-    this.audioElementSource = this.audioContext.createMediaElementSource(this.sourcenode);
-    this.sceneSource = this.resonanceAudioScene.createSource();
-    this.sceneSource.setGain(this.data.gain);
-    audioElementSource.connect(source.input);
-    if (this.data.autoplay) { this.sourceNode.play() }
-  },
-
   setPos: function () {
     if (this.sceneSource) {
       this.sceneSource.setFromMatrix(this.el.object3D.matrixWorld);
     }
   }
+});
+
+AFRAME.registerComponent('raycaster-listen', {
+	init: function () {
+    // Use events to figure out what raycaster is listening so we don't have to
+    // hardcode the raycaster.
+    this.el.addEventListener('raycaster-intersected', evt => {
+      this.raycaster = evt.detail.el;
+    });
+    this.el.addEventListener('raycaster-intersected-cleared', evt => {
+      this.raycaster = null;
+    });
+  },
+
+  tick: function () {
+    if (!this.raycaster) { return; }  // Not intersecting.
+
+    //TODO add logic to looking at things
+    //let intersection = this.raycaster.components.raycaster.getIntersection(this.el);
+    //if (!intersection) { return; }
+    //console.log(intersection.point);
+  }
+});
+
+AFRAME.registerComponent('patient', {
+  schema: {
+    id: {type: 'string'},
+    ekg: { type: 'boolean', default: true },
+    hr: {type: 'number', default: 60},
+    ivpump: { type: 'boolean', default: false },
+    ventilator: { type: 'boolean', default: false },
+    cough: { type: 'boolean', default: false }
+  },
+
+  init: function () {
+    console.log("Adding patient");
+
+    
+    this.needsHelp = false;
+
+    //---- EKG ----
+    console.log("HR: " + this.data.hr);
+    this.ekgpause = 60 / this.data.hr - 0.62; //in seconds
+    console.log("pause between ekg beeps: " + this.ekgpause);
+
+    console.log('#ekgBeep'+this.data.id);
+    if (this.data.ekg){
+      this.el.setAttribute('resonancesource', {
+        src: '#ekgBeep'+this.data.id,
+        loop: false ,
+        autoplay: true,
+        gain: 0.05
+      });
+      this.ekgSound = this.el.components.resonancesource.sourceNode;
+     
+
+      //custom looping for variable HR
+      this.ekgSound.onended =(event) => {
+        event.target.currentTime = 2 - this.ekgpause;
+        event.target.play();
+      };
+    }
+
+    //---- IV ----
+    if (this.data.ivpump){
+      //create new entity for IV sound
+      let el = document.createElement('a-entity');
+      el.setAttribute('resonancesource', {
+        src: '#IVpump'+this.data.id,
+        loop: true,
+        autoplay: true,
+        gain: 0.8
+      });
+      el.setAttribute('geometry',{primitive: 'sphere', radius: 0.3});
+      this.el.appendChild(el);
+      //this.ivSound = this.el.components.resonancesource.sourceNode;
+    }
+
+    //---- ventilator ----
+    if (this.data.ventilator) {this.data.cough = false};
+
+    //---- cough ----
+    if(this.data.cough){
+      //create new entity for IV sound
+      let el = document.createElement('a-entity');
+      el.setAttribute('resonancesource', {
+        src: '#coughing1',
+        loop: false,
+        autoplay: true,
+        gain: 0.8
+      });
+      el.setAttribute('geometry',{primitive: 'triangle'});
+      this.el.appendChild(el);
+    }
+  }
+});
+
+AFRAME.registerComponent('telephone', {
+  init: function () {
+    this.clickhandler = this.clicked.bind(this);
+    this.el.addEventListener('click', this.clickhandler);
+  },
+  
+  clicked: function (evt) {
+    console.log("clicked telephone");
+    let s = this.el.components.resonancesource.sourceNode;
+    s.pause();
+    s.currentTime = 0;
+  },
 });
