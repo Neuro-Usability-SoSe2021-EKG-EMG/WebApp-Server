@@ -122,6 +122,7 @@ AFRAME.registerComponent('resonancesource', {
   },
 
   tick: function (t, td) {
+    //TODO performance?
     this.setPos();
   },
 
@@ -166,9 +167,13 @@ AFRAME.registerComponent('patient', {
 
   init: function () {
     console.log("Adding patient");
-
     
+    //Variables
     this.needsHelp = false;
+
+    //---- Appearance ----
+    this.el.setAttribute('geometry',{primitive: 'sphere', radius: 0.8});
+    this.el.setAttribute('material',{color: 'white', opacity: 0.8});
 
     //---- EKG ----
     console.log("HR: " + this.data.hr);
@@ -188,7 +193,7 @@ AFRAME.registerComponent('patient', {
 
       //custom looping for variable HR
       this.ekgSound.onended =(event) => {
-        event.target.currentTime = 2 - this.ekgpause;
+        event.target.currentTime = 2 - this.ekgpause; //the actual file is 2 s of silence + 0.62 of beep long
         event.target.play();
       };
     }
@@ -209,6 +214,7 @@ AFRAME.registerComponent('patient', {
     }
 
     //---- ventilator ----
+    //TODO
     if (this.data.ventilator) {this.data.cough = false};
 
     //---- cough ----
@@ -231,12 +237,23 @@ AFRAME.registerComponent('telephone', {
   init: function () {
     this.clickhandler = this.clicked.bind(this);
     this.el.addEventListener('click', this.clickhandler);
+
+    this.hello = document.createElement('a-entity');
+    this.hello.setAttribute('resonancesource', {
+      src: '#hello_lowQ',
+      loop: false,
+      autoplay: false,
+      gain: 0.8
+    });
+    this.hello.setAttribute('material',{opacity: 0});
+    this.el.appendChild(this.hello);
   },
   
   clicked: function (evt) {
     console.log("clicked telephone");
     let s = this.el.components.resonancesource.sourceNode;
-    s.pause();
-    s.currentTime = 0;
+    s.pause();  //pause ringing sound
+    s.currentTime = 0; //set ringing sound to 0
+    this.hello.components.resonancesource.sourceNode.play();
   },
 });

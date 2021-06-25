@@ -9,10 +9,13 @@ var serv = require('http').Server(app);
 app.use('/', express.static(path.join(__dirname, 'public')))
 serv.listen(2000);
 
-
-// const fs = require('fs');
-
-// fs.writeFile('001.log', 'Damian,content,more content', function (err) {
-//   if (err) throw err;
-//   console.log('Done!');
-// });
+//write file logs via POST request
+const fs = require('fs');
+app.use(express.text());
+app.post('/', function (req, res) {
+  fs.writeFile('001.log', req.body, function (err) {
+  if (err) throw err;
+  console.log('Received log!');
+  res.end();
+  })
+});

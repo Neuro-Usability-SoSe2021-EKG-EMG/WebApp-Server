@@ -19,13 +19,18 @@
 	<script src="https://cdn.jsdelivr.net/npm/resonance-audio/build/resonance-audio.min.js"></script>
 	<script src="components/resonanceScene.js"></script>
   <script src="components/startExperience.js"></script>
+  <script src="components/util.js"></script>
+  <script src="components/heartrate.js"></script>
 </head>
 
 <body style='margin : 0px; overflow: hidden;'>
 
 
 	<div id="startX">
-		<button>
+    <button id="startwithoutHR">
+      Start Experience without Heart Rate Monitoring
+    </button>
+		<button id="startwithHR">
       Start Experience
     </button>
   </div>
@@ -41,9 +46,12 @@
       <audio id="IVpump2" src='resources/IVpump.wav' preload="auto"></audio>
       <audio id="coughing1" src='resources/coughing1.wav' preload="auto"></audio>
       <audio id="telephone" src='resources/telephone.wav' preload="auto"></audio>
+      <audio id="hello_lowQ" src='resources/hello_lowQ.wav' preload="auto"></audio>
       <audio id="roomfan" src='resources/A1-0023_Room Tone Ceiling Fan Runs.wav' preload="auto"></audio>
       <img id="hospital360" src='resources/hospital.jpeg' preload='auto'></img>
 		</a-assets>
+
+    <a-entity server-logger></a-entity>
 
     <!-- TODO picture on sphere for demo purposes -->
     <a-sphere radius=9 src='#hospital360' rotation="0 -90 0" position='0 1.6 0' material='side: back'></a-sphere>
@@ -60,13 +68,10 @@
     <!-- here define patients, need to be data-raycastable for cursor interaction and raycaster-listen for interaction-->
 		<!-- animation box test <a-box position='-0.5 1.5 -1' animation="property: object3D.position.x; to: -1.0; dur: 1000; dir: alternate; easing: easeInOutElastic; loop: true" material='color: blue;' depth='0.2' height='0.2' width='0.2' data-raycastable raycaster-listen patient='id:1'></a-box>
     -->
-
-		<a-box position='-2 1 -2' material='color: red; opacity: 0.6' depth='1.4' height='0.4' width='2' patient='id:1; ekg:true; hr: 50; ivpump: true' data-raycastable raycaster-listen></a-box>
-    <a-box position='2 1 -2' material='color: red; opacity: 0.6' depth='1.4' height='0.4' width='2' patient='id:2; ekg:true; hr: 80; cough: true' data-raycastable raycaster-listen></a-box>
-    <!--
-    <a-box position='2 1.2 2' material='color: red; opacity: 0.6' depth='1.4' height='0.4' width='2' patient='id:3' data-raycastable raycaster-listen></a-box>
-    <a-box position='-2 1.2 2' material='color: red; opacity: 0.6' depth='1.4' height='0.4' width='2' patient='id:4' data-raycastable raycaster-listen></a-box>
-    -->
+    
+		<a-entity position='-2 1 -2' patient='id:1; ekg:true; hr: 50; ivpump: true' data-raycastable raycaster-listen></a-entity>
+    <a-entity position='2 1 -2' patient='id:2; ekg:true; hr: 80; cough: true' data-raycastable raycaster-listen></a-entity>
+  
 
     <!-- ENVIRONMENTAL SOUNDS -->
     <a-box position='-4.9 1.6 2' material='color: green; opacity: 0.6' depth='0.1' height='0.2' width='0.1' resonancesource="src: #telephone;" telephone data-raycastable raycaster-listen></a-box>
