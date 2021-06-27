@@ -7,3 +7,17 @@ AFRAME.registerComponent('server-logger', {
   }
 });
 
+AFRAME.registerComponent('timeline', {
+  init: function() {
+    let starttime = Performance.now()
+    let tutorial_end = undefined
+    let anchoring_end = undefined
+    let scene_end = undefined
+  },
+
+  endTutorial: function() {
+    tutorial_end = Performance.now()
+  }
+  
+});
+

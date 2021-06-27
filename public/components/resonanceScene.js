@@ -92,7 +92,9 @@ AFRAME.registerComponent('resonancesource', {
     loop: { type: 'boolean', default: true },
     autoplay: { type: 'boolean', default: true },
     gain: { type: 'number', default: 1 },
-    width: {type: 'number', default: 0}
+    width: {type: 'number', default: 0},
+    starttime:  {type: 'number', default: 0},
+    stoptime: {type: 'number', default: Infinity}
   },
   init: function () {
     this.pos = new AFRAME.THREE.Vector3();
@@ -102,12 +104,8 @@ AFRAME.registerComponent('resonancesource', {
     this.audioElementSource = undefined;
     this.sceneSource = undefined;
 
-
-
     //tick throttle for performance
     this.thick = AFRAME.utils.throttleTick(this.tick, 50, this);
-
-    //this.el.sceneEl.addEventListener('loaded', this.afterLoadInit.bind(this));
 
     //get audio source from aframe asset management with #id
     this.sourceNode = document.querySelector(this.data.src);
@@ -123,10 +121,10 @@ AFRAME.registerComponent('resonancesource', {
 
   tick: function (t, td) {
     //TODO performance?
-    this.setPos();
+    this.setSoundPos();
   },
 
-  setPos: function () {
+  setSoundPos: function () {
     if (this.sceneSource) {
       this.sceneSource.setFromMatrix(this.el.object3D.matrixWorld);
     }
@@ -215,7 +213,7 @@ AFRAME.registerComponent('patient', {
 
     //---- ventilator ----
     //TODO
-    if (this.data.ventilator) {this.data.cough = false};
+    if (this.data.ventilator) {this.data.cough = false}
 
     //---- cough ----
     if(this.data.cough){

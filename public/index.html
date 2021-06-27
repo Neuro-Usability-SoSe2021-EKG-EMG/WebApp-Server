@@ -24,8 +24,6 @@
 </head>
 
 <body style='margin : 0px; overflow: hidden;'>
-
-
 	<div id="startX">
     <button id="startwithoutHR">
       Start Experience without Heart Rate Monitoring
@@ -35,7 +33,7 @@
     </button>
   </div>
 
-	<a-scene resonancesystem startexperience>
+	<a-scene heartratemonitor resonancesystem startexperience stats inspector>
 		<a-assets timeout="2000">
 			<!-- preload sounds and assets here -->
       <audio id="ekgBeep1" src='resources/singleEKGbeepPREsilence2s.wav' preload="auto"></audio> <!-- duration 750ms for 80bpm -->
