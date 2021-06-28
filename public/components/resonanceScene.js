@@ -89,8 +89,8 @@ AFRAME.registerComponent('resonancesource', {
   dependencies: ['geometry', 'position'],
   schema: {
     src: { type: 'string', default: '' },
-    loop: { type: 'boolean', default: true },
-    autoplay: { type: 'boolean', default: true },
+    loop: { type: 'boolean', default: false },
+    autoplay: { type: 'boolean', default: false },
     gain: { type: 'number', default: 1 },
     width: {type: 'number', default: 0},
     starttime:  {type: 'number', default: 0},
@@ -133,12 +133,12 @@ AFRAME.registerComponent('resonancesource', {
 
 AFRAME.registerComponent('raycaster-listen', {
 	init: function () {
-    var timer;
+    let timer;
     // Use events to figure out what raycaster is listening so we don't have to
     // hardcode the raycaster.
     this.el.addEventListener('raycaster-intersected', evt => {
       this.raycaster = evt.detail.el;
-      this.el.onmouseover(timer = setInterval(() => this.el.setAttribute('material', {color: 'orange', opacity: 0.8}), 5000));
+      timer = setTimeout(() => this.el.setAttribute('material', {color: 'orange', opacity: 0.8}), 5000);
       //TODO unregister(?) after certain time
     });
     this.el.addEventListener('raycaster-intersected-cleared', evt => {
@@ -298,7 +298,7 @@ AFRAME.registerComponent('patient', {
 
   tick: function(t, td) {
     //play sounds at specified time
-    if (this.nextSoundId < this.sounds.length && performance.now() - this.el.sceneEl.components.timeline.scene_start > this.sounds[this.nextSoundId].starttime)
+    if (this.nextSoundId < this.sounds.length && performance.now() - this.el.sceneEl.components.timeline.timestamps.get("scene_start") > this.sounds[this.nextSoundId].starttime)
     {
       console.log("Playing sound " + this.sounds[this.nextSoundId].name + " at " + this.sounds[this.nextSoundId].starttime + " |Current time: " + performance.now());
       this.sounds[this.nextSoundId].element.components.resonancesource.sourceNode.play();

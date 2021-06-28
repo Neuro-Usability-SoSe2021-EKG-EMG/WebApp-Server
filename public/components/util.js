@@ -13,24 +13,84 @@ AFRAME.registerComponent('server-logger', {
 */
 AFRAME.registerComponent('timeline', {
   init: function() {
-    this.starttime = performance.now()
-    this.tutorial_end = undefined
-    this.anchoring_end = undefined
-    this.scene_start = undefined
-    this.scene_end = undefined
+    this.timestamps = new Map();
+    this.timestamps.set("starttime", performance.now())
+    this.timestamps.set("tutorial_start", undefined)
+    this.timestamps.set("tutorial_end", undefined)
+    this.timestamps.set("anchoring_end", undefined)
+    this.timestamps.set("scene_start", undefined)
+    this.timestamps.set("scene_end", undefined)
+  },
+
+  startTutorial: function() {
+    //log time
+    this.timestamps.set("tutorial_start", performance.now())
+    //make all things tutorial visible
+    let container = document.querySelector("#tutorialcontainer")
+    container.object3D.visible = true;
+    let tutorialSound = document.querySelector("#s_tutorial").components.resonancesource.sourceNode
+
+    tutorialSound.onended = (event) => {
+      this.endTutorial();
+      this.startAnchoring();
+    };
+
+    tutorialSound.play()
   },
 
   endTutorial: function() {
-    this.tutorial_end = performance.now()
+    //log time
+    this.timestamps.set("tutorial_end", performance.now())
+
+    let container = document.querySelector("#tutorialcontainer")
+    container.object3D.visible = false;
+  },
+
+  startAnchoring: function() {
+    //log time
+    this.timestamps.set("anchoring_start", performance.now())
+
+    let container = document.querySelector("#anchoringcontainer")
+    container.object3D.visible = true;
+
+    //TODO HR STUFFS
+
+
+    let anchoringSound = document.querySelector("#s_anchor").components.resonancesource.sourceNode
+
+    anchoringSound.onended = (event) => {
+      this.endAnchoring();
+      this.startScene();
+    };
+
+    anchoringSound.currentTime = 28; //PLAY ONLY LAST 2 SECONDS, TODO REMOVE FOR PRODUCTION
+    anchoringSound.play()
   },
 
   endAnchoring: function() {
-    this.anchoring_end = performance.now()
+    //log time
+    this.timestamps.set("anchoring_end", performance.now())
+    let container = document.querySelector("#anchoringcontainer")
+    container.object3D.visible = false;
   },
 
   startScene: function() {
-    this.scene_start = performance.now()
-  }
-  
+    //log time
+    this.timestamps.set("scene_start", performance.now())
+
+    let container = document.querySelector("#mainscenecontainer")
+    container.object3D.visible = true;
+  },
+
+  endScene: function() {
+    //log time
+    this.timestamps.set("scene_end", performance.now())
+  },
+
+  run: function() {
+    this.startTutorial()
+
+  },
+
 });
 

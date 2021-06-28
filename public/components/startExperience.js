@@ -8,14 +8,14 @@ AFRAME.registerComponent('startexperience', {
       document.querySelector("#startX").style.display = "none";
        console.log("Starting without HR monitoring");
       sceneEl.components.resonancesystem.run();
-      sceneEl.components.timeline.startScene();  //TODO MAKE BETTER
+      sceneEl.components.timeline.run();  //TODO MAKE BETTER
     }
     document.querySelector("#startwithHR").onclick = () => {
       document.querySelector("#startX").style.display = "none";
       console.log("Starting with HR monitoring");
       sceneEl.components.heartratemonitor.run();
       sceneEl.components.resonancesystem.run();
-      sceneEl.components.timeline.startScene(); //TODO MAKE BETTER
+      sceneEl.components.timeline.run(); //TODO MAKE BETTER
     }
   }
 });
