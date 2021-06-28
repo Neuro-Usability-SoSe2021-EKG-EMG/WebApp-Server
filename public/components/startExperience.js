@@ -1,16 +1,18 @@
 AFRAME.registerComponent('startexperience', {
-  dependencies: ['resonanceSystem'],
+  dependencies: ['resonanceSystem', 'heartratemonitor', 'pairDevice'],
   init: function () {
     document.querySelector("#startX").style.display = "flex";
     let sceneEl = this.el;
-    //console.log(sceneEl.camera.el.object3D.matrixWorld);
+   
     document.querySelector("#startwithoutHR").onclick = () => {
       document.querySelector("#startX").style.display = "none";
+       console.log("Starting without HR monitoring");
       sceneEl.components.resonancesystem.run();
     }
     document.querySelector("#startwithHR").onclick = () => {
       document.querySelector("#startX").style.display = "none";
-      //TODO INIT HEART RATE
+      console.log("Starting with HR monitoring");
+      sceneEl.components.heartratemonitor.run();
       sceneEl.components.resonancesystem.run();
     }
   }

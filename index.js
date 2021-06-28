@@ -6,7 +6,7 @@ var app = express();
 var serv = require('http').Server(app);
 
 // When the root directory is called, serve 'public' statically, index.html is default
-app.use('/', express.static(path.join(__dirname, 'public')))
+app.use('/', express.static(path.join(__dirname, 'public')));
 serv.listen(2000);
 
 //write file logs via POST request
@@ -17,5 +17,5 @@ app.post('/', function (req, res) {
   if (err) throw err;
   console.log('Received log!');
   res.end();
-  })
+  });
 });
