@@ -31,8 +31,15 @@
 		<button id="startwithHR">
       Start Experience
     </button>
+
   </div>
 
+  <div id="pair">
+    <button id="pairDevice">
+    Pair Polar Belt for heartrate monitoriring
+    </button>
+  </div>
+  
 	<a-scene heartratemonitor resonancesystem startexperience stats inspector>
 		<a-assets timeout="2000">
 			<!-- preload sounds and assets here -->
@@ -72,7 +79,72 @@
   
 
     <!-- ENVIRONMENTAL SOUNDS -->
-    <a-box position='-4.9 1.6 2' material='color: green; opacity: 0.6' depth='0.1' height='0.2' width='0.1' resonancesource="src: #telephone;" telephone data-raycastable raycaster-listen></a-box>
+    <a-box position='-4.9 1.6 2' material='color: green; opacity: 0.6' depth='0.1' height='0.2' width='0.1' resonancesource=" function () {
+    console.log("Adding patient");
+    
+    //Variables
+    this.needsHelp = false;
+
+    //---- Appearance ----
+    this.el.setAttribute('geometry',{primitive: 'sphere', radius: 0.8});
+    this.el.setAttribute('material',{color: 'green', opacity: 0.8});
+
+    //---- EKG ----
+    console.log("HR: " + this.data.hr);
+    this.ekgpause = 60 / this.data.hr - 0.62; //in seconds
+    console.log("pause between ekg beeps: " + this.ekgpause);
+
+    console.log('#ekgBeep'+this.data.id);
+    if (this.data.ekg){
+      this.el.setAttribute('resonancesource', {
+        src: '#ekgBeep'+this.data.id,
+        loop: false ,
+        autoplay: true,
+        gain: 0.05
+      });
+      this.ekgSound = this.el.components.resonancesource.sourceNode;
+     
+
+      //custom looping for variable HR
+      this.ekgSound.onended =(event) => {
+        event.target.currentTime = 2 - this.ekgpause; //the actual file is 2 s of silence + 0.62 of beep long
+        event.target.play();
+      };
+    }
+
+    //---- IV ----
+    if (this.data.ivpump){
+      //create new entity for IV sound
+      let el = document.createElement('a-entity');
+      el.setAttribute('resonancesource', {
+        src: '#IVpump'+this.data.id,
+        loop: true,
+        autoplay: true,
+        gain: 0.8
+      });
+      el.setAttribute('geometry',{primitive: 'sphere', radius: 0.3});
+      this.el.appendChild(el);
+      //this.ivSound = this.el.components.resonancesource.sourceNode;
+    }
+
+    //---- ventilator ----
+    //TODO
+    if (this.data.ventilator) {this.data.cough = false}
+
+    //---- cough ----
+    if(this.data.cough){
+      //create new entity for IV sound
+      let el = document.createElement('a-entity');
+      el.setAttribute('resonancesource', {
+        src: '#coughing1',
+        loop: false,
+        autoplay: true,
+        gain: 0.8
+      });
+      el.setAttribute('geometry',{primitive: 'triangle'});
+      this.el.appendChild(el);
+    }
+  }src: #telephone;" telephone data-raycastable raycaster-listen></a-box>
     <a-box position='1 2.8 0' material='color: green; opacity: 0.6' depth='0.1' height='0.2' width='0.1' resonancesource="src: #roomfan; gain: 2; width: 180"></a-box>
 
     <!-- here define room with wireframe outlines for reference CHANGES NEED TO BE MIRRORED IN resonanceScene.js

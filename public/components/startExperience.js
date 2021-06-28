@@ -1,5 +1,5 @@
 AFRAME.registerComponent('startexperience', {
-  dependencies: ['resonanceSystem', 'heartratemonitor'],
+  dependencies: ['resonanceSystem', 'heartratemonitor', 'pairDevice'],
   init: function () {
     document.querySelector("#startX").style.display = "flex";
     let sceneEl = this.el;

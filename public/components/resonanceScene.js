@@ -133,13 +133,17 @@ AFRAME.registerComponent('resonancesource', {
 
 AFRAME.registerComponent('raycaster-listen', {
 	init: function () {
+    var timer;
     // Use events to figure out what raycaster is listening so we don't have to
     // hardcode the raycaster.
     this.el.addEventListener('raycaster-intersected', evt => {
       this.raycaster = evt.detail.el;
+      this.el.onmouseover(timer = setInterval(() => this.el.setAttribute('material', {color: 'orange', opacity: 0.8}), 5000));
+      //TODO unregister(?) after certain time
     });
     this.el.addEventListener('raycaster-intersected-cleared', evt => {
       this.raycaster = null;
+      clearInterval(timer);
     });
   },
 
@@ -171,7 +175,7 @@ AFRAME.registerComponent('patient', {
 
     //---- Appearance ----
     this.el.setAttribute('geometry',{primitive: 'sphere', radius: 0.8});
-    this.el.setAttribute('material',{color: 'white', opacity: 0.8});
+    this.el.setAttribute('material',{color: 'green', opacity: 0.8});
 
     //---- EKG ----
     console.log("HR: " + this.data.hr);

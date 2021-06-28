@@ -7,6 +7,10 @@ AFRAME.registerComponent('server-logger', {
   }
 });
 
+/** 
+* Timeline function that controls the whole experiencve from start to end 
+* and at the same time provides a place to get timestamps
+*/
 AFRAME.registerComponent('timeline', {
   init: function() {
     let starttime = Performance.now()
@@ -17,6 +21,10 @@ AFRAME.registerComponent('timeline', {
 
   endTutorial: function() {
     tutorial_end = Performance.now()
+  },
+
+  endAnchoring: function() {
+    anchoring_end = Performance.now()
   }
   
 });

@@ -1,12 +1,7 @@
-AFRAME.registerComponent('heartratemonitor', {
+AFRAME.registerComponent("pairDevice", {
 
   init: function() {
-    //let hrData = new Array(200).fill(10)
-    // const fs = require('fs') //TODO require is server code, not possible here
-  },
-
-  run: function() {
-    let hrData = new Array(200).fill(10)
+   let hrData = new Array(200).fill(10)
     
     async function connect(props) {
     const device = await navigator.bluetooth.requestDevice({
@@ -60,8 +55,6 @@ console.clear()
 setupConsoleGraphExample(100, 400)
 connect({ onChange: printHeartRate }).catch(console.error)
 
-  }
-
-
+  },
 
 });
