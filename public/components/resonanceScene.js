@@ -157,6 +157,11 @@ AFRAME.registerComponent('raycaster-listen', {
   }
 });
 
+/**
+ * A Patient Component
+ * meant to be used on entity in scene
+ * creates it's own resonance sound entities and adds them to the scene
+ */
 AFRAME.registerComponent('patient', {
   schema: {
     id: {type: 'string'},
@@ -164,14 +169,35 @@ AFRAME.registerComponent('patient', {
     hr: {type: 'number', default: 60},
     ivpump: { type: 'boolean', default: false },
     ventilator: { type: 'boolean', default: false },
-    cough: { type: 'boolean', default: false }
+    cough: { type: 'boolean', default: false },      //[#id, duration (ms)]
+    sounds: {
+      default: new Map(),
+      parse: function (value) {
+        let array2d = value.split('/').map(function(s) {
+          return s.split(",");
+        });
+        return new Map(array2d);
+      },
+      stringify: function (value) {
+        return value.join('/'); //TODO not working, still standard
+      }
+    },
+    starttime:  {type: 'number', default: 0},
+    stoptime: {type: 'number', default: Infinity}
   },
 
   init: function () {
     console.log("Adding patient");
-    
+    console.log("With sounds:")
+    console.log(this.data.sounds)
+
+    // Set up the tick throttling
+    this.tick = AFRAME.utils.throttleTick(this.tick, 100, this);
+
     //Variables
     this.needsHelp = false;
+    this.sounds = []; //list of {name, starttime, sourceNode}
+    this.nextSoundId = 0;
 
     //---- Appearance ----
     this.el.setAttribute('geometry',{primitive: 'sphere', radius: 0.8});
@@ -232,7 +258,55 @@ AFRAME.registerComponent('patient', {
       el.setAttribute('geometry',{primitive: 'triangle'});
       this.el.appendChild(el);
     }
+
+    //---- creating all choreographed sound entities beforhand ----
+    if(this.data.sounds){
+      for ([sound, start] of this.data.sounds.entries()){
+        console.log("Starting sound " + sound + " at " + start);
+        //create new entity sound
+        let el = document.createElement('a-entity');
+        el.setAttribute('resonancesource', {
+          src: sound,
+          loop: false, //TODO check if customizable
+          autoplay: false,
+          gain: 1
+        });
+        el.setAttribute('geometry',{primitive: 'box'});
+        //append to scene
+        this.el.appendChild(el);
+
+        //add to array
+        this.sounds.push({name: sound, starttime: start, element: el})
+      }
+      console.log(this.sounds);
+    }
+  },
+
+  haveProblem: function() {
+    //get start time for logging
+    //start sound and timer for success/fail
+    //treatment progress
+    //
+
+  },
+
+  solveProblem: function() {
+    // log stop time, log success / failure
+    // stop sounds
+    // confirmation sounds
+  },
+
+  tick: function(t, td) {
+    //play sounds at specified time
+    if (this.nextSoundId < this.sounds.length && performance.now() - this.el.sceneEl.components.timeline.scene_start > this.sounds[this.nextSoundId].starttime)
+    {
+      console.log("Playing sound " + this.sounds[this.nextSoundId].name + " at " + this.sounds[this.nextSoundId].starttime + " |Current time: " + performance.now());
+      this.sounds[this.nextSoundId].element.components.resonancesource.sourceNode.play();
+      
+      this.nextSoundId++;
+    }
   }
+  
 });
 
 AFRAME.registerComponent('telephone', {
