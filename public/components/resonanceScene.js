@@ -271,7 +271,7 @@ AFRAME.registerComponent('patient', {
           autoplay: false,
           gain: 1
         });
-        el.setAttribute('geometry',{primitive: 'box'});
+        el.setAttribute('geometry',{primitive: 'box', width: 0.5, height: 0.5, depth: 0.5});
         //append to scene
         this.el.appendChild(el);
 
