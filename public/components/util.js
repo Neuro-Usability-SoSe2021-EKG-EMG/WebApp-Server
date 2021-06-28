@@ -8,23 +8,28 @@ AFRAME.registerComponent('server-logger', {
 });
 
 /** 
-* Timeline function that controls the whole experiencve from start to end 
+* Timeline function that controls the whole experience from start to end 
 * and at the same time provides a place to get timestamps
 */
 AFRAME.registerComponent('timeline', {
   init: function() {
-    let starttime = Performance.now()
-    let tutorial_end = undefined
-    let anchoring_end = undefined
-    let scene_end = undefined
+    this.starttime = performance.now()
+    this.tutorial_end = undefined
+    this.anchoring_end = undefined
+    this.scene_start = undefined
+    this.scene_end = undefined
   },
 
   endTutorial: function() {
-    tutorial_end = Performance.now()
+    this.tutorial_end = performance.now()
   },
 
   endAnchoring: function() {
-    anchoring_end = Performance.now()
+    this.anchoring_end = performance.now()
+  },
+
+  startScene: function() {
+    this.scene_start = performance.now()
   }
   
 });

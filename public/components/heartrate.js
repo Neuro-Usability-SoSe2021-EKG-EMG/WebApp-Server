@@ -29,7 +29,7 @@ AFRAME.registerComponent('heartratemonitor', {
   hrData = hrData.slice(-200)
   let arrow = ''
   if (heartRate !== prev) arrow = heartRate > prev ? '⬆' : '⬇'
-  console.clear()
+  //console.clear()
   console.graph(hrData)
   console.log(`%c\n💚 ${heartRate} ${arrow}`, 'font-size: 24px;', '\n\n(To disconnect, refresh or close tab)\n\n')
 }
@@ -56,7 +56,7 @@ function setupConsoleGraphExample(height, width) {
   }
 }
 
-console.clear()
+//console.clear()
 setupConsoleGraphExample(100, 400)
 connect({ onChange: printHeartRate }).catch(console.error)
 

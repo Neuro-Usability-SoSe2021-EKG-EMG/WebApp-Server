@@ -17,9 +17,9 @@
 	</script>
 	<!-- include Resonance Audio -->
 	<script src="https://cdn.jsdelivr.net/npm/resonance-audio/build/resonance-audio.min.js"></script>
+  <script src="components/util.js"></script>
 	<script src="components/resonanceScene.js"></script>
   <script src="components/startExperience.js"></script>
-  <script src="components/util.js"></script>
   <script src="components/heartrate.js"></script>
 </head>
 
@@ -36,7 +36,7 @@
 
 
   
-	<a-scene heartratemonitor resonancesystem startexperience stats inspector>
+	<a-scene heartratemonitor resonancesystem timeline startexperience stats inspector>
 		<a-assets timeout="2000">
 			<!-- preload sounds and assets here -->
       <audio id="ekgBeep1" src='resources/singleEKGbeepPREsilence2s.wav' preload="auto"></audio> <!-- duration 750ms for 80bpm -->
@@ -70,8 +70,8 @@
 		<!-- animation box test <a-box position='-0.5 1.5 -1' animation="property: object3D.position.x; to: -1.0; dur: 1000; dir: alternate; easing: easeInOutElastic; loop: true" material='color: blue;' depth='0.2' height='0.2' width='0.2' data-raycastable raycaster-listen patient='id:1'></a-box>
     -->
     
-		<a-entity position='-2 1 -2' patient='id:1; ekg:true; hr: 50; ivpump: true' data-raycastable raycaster-listen></a-entity>
-    <a-entity position='2 1 -2' patient='id:2; ekg:true; hr: 80; cough: true' data-raycastable raycaster-listen></a-entity>
+		<a-entity position='-2 1 -2' patient='id:1; ekg:false; hr: 50; ivpump: false; sounds: #coughing1,1000/#ekgBeep3,5000/#ekgBeep4,8000' data-raycastable raycaster-listen></a-entity>
+    <!-- <a-entity position='2 1 -2' patient='id:2; ekg:true; hr: 80; cough: true' data-raycastable raycaster-listen></a-entity> -->
   
 
     <!-- ENVIRONMENTAL SOUNDS -->
