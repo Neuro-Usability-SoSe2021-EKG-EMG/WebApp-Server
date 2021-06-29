@@ -109,8 +109,6 @@ AFRAME.registerComponent('resonancesource', {
 
     //get audio source from aframe asset management with #id
     this.sourceNode = document.querySelector(this.data.src);
-    console.log(this);
-    console.log(this.sourceNode);
     //set looping
     if (this.data.loop) {
       this.sourceNode.setAttribute('loop', 'true');
@@ -170,6 +168,7 @@ AFRAME.registerComponent('patient', {
     ivpump: { type: 'boolean', default: false },
     ventilator: { type: 'boolean', default: false },
     cough: { type: 'boolean', default: false },      //[#id, duration (ms)]
+    /* this was way too fancy... but we need to control is elsewhere
     sounds: {
       default: new Map(),
       parse: function (value) {
@@ -181,7 +180,8 @@ AFRAME.registerComponent('patient', {
       stringify: function (value) {
         return value.join('/'); //TODO not working, still standard
       }
-    },
+    },*/
+    sounds: {type: 'array', default: []},
     starttime:  {type: 'number', default: 0},
     stoptime: {type: 'number', default: Infinity}
   },
@@ -192,12 +192,14 @@ AFRAME.registerComponent('patient', {
     console.log(this.data.sounds)
 
     // Set up the tick throttling
+    /* this was way too fancy... but we need to control is elsewhere
     this.tick = AFRAME.utils.throttleTick(this.tick, 100, this);
+    */
 
     //Variables
     this.needsHelp = false;
-    this.sounds = []; //list of {name, starttime, sourceNode}
-    this.nextSoundId = 0;
+    this.sounds = new Map(); //list of {name, starttime, sourceNode}
+    //this.nextSoundId = 0;
 
     //---- Appearance ----
     this.el.setAttribute('geometry',{primitive: 'sphere', radius: 0.8});
@@ -260,26 +262,25 @@ AFRAME.registerComponent('patient', {
     }
 
     //---- creating all choreographed sound entities beforhand ----
-    if(this.data.sounds){
-      for ([sound, start] of this.data.sounds.entries()){
-        console.log("Starting sound " + sound + " at " + start);
-        //create new entity sound
-        let el = document.createElement('a-entity');
-        el.setAttribute('resonancesource', {
-          src: sound,
-          loop: false, //TODO check if customizable
-          autoplay: false,
-          gain: 1
-        });
-        el.setAttribute('geometry',{primitive: 'box', width: 0.5, height: 0.5, depth: 0.5});
-        //append to scene
-        this.el.appendChild(el);
+    for (sound of this.data.sounds) {
+      console.log("Creating patient sound: " + sound);
+      //create new entity sound
+      let el = document.createElement('a-entity')
+      el.setAttribute('resonancesource', {
+        src: sound,
+        loop: false, //TODO check if customizable
+        autoplay: false,
+        gain: 1
+      })
+      el.setAttribute('geometry',{primitive: 'box', width: 0.5, height: 0.5, depth: 0.5});
+      //append to scene
+      this.el.appendChild(el);
 
-        //add to array
-        this.sounds.push({name: sound, starttime: start, element: el})
-      }
-      console.log(this.sounds);
+      //add to array
+      this.sounds.set(sound, el);
     }
+    console.log(this.sounds);
+    
   },
 
   haveProblem: function() {
@@ -296,6 +297,7 @@ AFRAME.registerComponent('patient', {
     // confirmation sounds
   },
 
+  /* this was way too fancy... but we need to control is elsewhere
   tick: function(t, td) {
     //play sounds at specified time
     if (this.nextSoundId < this.sounds.length && performance.now() - this.el.sceneEl.components.timeline.timestamps.get("scene_start") > this.sounds[this.nextSoundId].starttime)
@@ -305,7 +307,7 @@ AFRAME.registerComponent('patient', {
       
       this.nextSoundId++;
     }
-  }
+  }*/
   
 });
 
