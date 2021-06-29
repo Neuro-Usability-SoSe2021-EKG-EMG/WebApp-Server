@@ -20,6 +20,16 @@ AFRAME.registerComponent('timeline', {
     this.timestamps.set("anchoring_end", undefined)
     this.timestamps.set("scene_start", undefined)
     this.timestamps.set("scene_end", undefined)
+
+    
+    //find all patients to have access later
+    this.patients = new Map();
+    let patientlist = document.querySelectorAll('[patient]');
+    for (p of patientlist) {
+      this.patients.set(parseInt(p.components.patient.data.id), p);
+    }
+
+    console.log(this.patients)
   },
 
   startTutorial: function() {
@@ -78,8 +88,15 @@ AFRAME.registerComponent('timeline', {
     //log time
     this.timestamps.set("scene_start", performance.now())
 
+    //make all visible
     let container = document.querySelector("#mainscenecontainer")
     container.object3D.visible = true;
+
+    //let patient 1 cough after 2 seconds
+    setTimeout(() => {
+      //TODO cast into function!!! way to complicated this way..
+      this.patients.get(1).components.patient.sounds.get("#coughing1").components.resonancesource.sourceNode.play()
+    }, 2000);
   },
 
   endScene: function() {
