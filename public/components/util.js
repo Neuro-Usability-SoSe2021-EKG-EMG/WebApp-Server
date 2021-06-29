@@ -92,11 +92,10 @@ AFRAME.registerComponent('timeline', {
     let container = document.querySelector("#mainscenecontainer")
     container.object3D.visible = true;
 
-    //let patient 1 cough after 2 seconds
-    setTimeout(() => {
-      //TODO cast into function!!! way to complicated this way..
-      this.patients.get(1).components.patient.sounds.get("#coughing1").components.resonancesource.sourceNode.play()
-    }, 2000);
+    //let patient 1 cough after 2 seconds, stop after 1
+    this.playPatientSound(1, "#coughing1", 2000, false, 1000);
+    //let patient 1 beep wildly after 4 seconds, stop after 3
+    this.playPatientSound(1, "#ekgBeep3", 4000, true, 3000);
   },
 
   endScene: function() {
@@ -108,6 +107,34 @@ AFRAME.registerComponent('timeline', {
     this.startTutorial()
 
   },
+
+  /**
+   * Play a sound of patiend at specific time, possible to loop
+   * patientID: integer
+   * sound: string with DOM key
+   * startTime: int in milliseconds
+   * loop: boolean, loop sound?
+   * stopTime: int in milliseconds, for how long should the sound play
+   */
+  playPatientSound: function(patientID, sound, startTime, loop, stopTime = Infinity){
+    let sourceNode = this.patients.get(patientID).components.patient.sounds.get(sound).components.resonancesource.sourceNode;
+
+    if (loop) {
+      sourceNode.setAttribute('loop', 'true');
+    } else {
+      sourceNode.removeAttribute('loop');
+    }
+
+    setTimeout(() => {
+      sourceNode.play()
+    }, startTime);
+
+    if(stopTime < Infinity){
+      setTimeout(() => {
+      sourceNode.pause()
+    }, stopTime + startTime);
+    }
+  }
 
 });
 
