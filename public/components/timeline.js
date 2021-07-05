@@ -98,13 +98,25 @@ AFRAME.registerComponent('timeline', {
     //this.playPatientSound(1, "#ekgBeep3", 4000, true, 3000);
 
     //--- let patient 1 have a problem
-    // timestamp for this problem
-    let problemName = "Patient 1 coughs";
+
     //patient 1 coughs, loop sound, 5000 s treatment time, no end, not terminal
     setTimeout(() => {
-      this.patients.get(1).components.patient.haveProblem(problemName, "#coughing1", true, 5000, 1000, true);
+      let problemName = "Patient 1 coughs";
+      //unsuccesfully solve any problem that is still there
+      this.patients.get(1).components.patient.endProblem(false);
+      this.patients.get(1).components.patient.haveProblem(problemName, "#coughing1", true, 5000, 10000, true);
       console.log('patient 1 coughs, loop sound, 5000 s treatment time, no end, not terminal');
     }, 2000);
+
+    //--- let patient 1 have a problem
+    //patient 1 coughs, loop sound, 5000 s treatment time, no end, not terminal
+    setTimeout(() => {
+      let problemName = "Patient 1 IV obscruction";
+      //unsuccesfully solve any problem that is still there
+      this.patients.get(1).components.patient.endProblem(false);
+      this.patients.get(1).components.patient.haveProblem(problemName, "#coughing1", true, 5000, 10000, false);
+      console.log('patient 1 coughs, loop sound, 5000 s treatment time, no end, not terminal');
+    }, 10000);
     
 
 

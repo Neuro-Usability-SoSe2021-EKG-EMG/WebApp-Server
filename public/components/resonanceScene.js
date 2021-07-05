@@ -329,8 +329,6 @@ AFRAME.registerComponent('patient', {
       if (duration != Infinity){
         setTimeout(() => {
           if (this.currentProblemTerminal){
-            this.endProblem(false, true);
-          } else {
             this.endProblem(false);
           }
         }, this.currentProblemDuration);
@@ -338,7 +336,7 @@ AFRAME.registerComponent('patient', {
     }
   },
 
-  endProblem: function(successful = true, terminal = false) {
+  endProblem: function(successful = true) {
     if (this.hasProblem) {
       this.hasProblem = false;
       this.currentProblemSound.pause(); // stop sound
@@ -346,7 +344,7 @@ AFRAME.registerComponent('patient', {
       if(successful){
         this.el.setAttribute('material', {color: 'green'});
         this.el.sceneEl.components.timeline.timestamps.set(this.currentProblemName + " - solved succesfull", performance.now());
-      } else if (!terminal) {
+      } else if (!this.currentProblemTerminal) {
         this.el.setAttribute('material', {color: 'green'});
         this.el.sceneEl.components.timeline.timestamps.set(this.currentProblemName + " - solved unsuccessfull", performance.now());
       } else {
