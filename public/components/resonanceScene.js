@@ -142,7 +142,7 @@ AFRAME.registerComponent('raycasterlisten', {
       this.el.setAttribute('material', {color: 'orange'});
 
       let timer = setTimeout(() => {this.el.setAttribute('active', true);}, 5000);
-      //TODO unregister(?) after certain time
+      //TODO unregister(?) after certain time / or color gets more dramatic
     });
     this.el.addEventListener('raycaster-intersected-cleared', evt => {
       this.raycaster = null;

@@ -1,41 +1,9 @@
-AFRAME.registerComponent('heartratemonitor', {
+AFRAME.registerComponent('pairDevice', {
 
   init: function() {
-    //let hrData = new Array(200).fill(10)
-    // const fs = require('fs') //TODO require is server code, not possible here
-  },
-
-  run: function() {
-    let hrData = new Array(200).fill(10)
-    
-    async function connect(props) {
-    const device = await navigator.bluetooth.requestDevice({
-    filters: [{ services: ['heart_rate'] }],
-    acceptAllDevices: false,
-    })
-    console.log(`%c\n👩🏼‍⚕️`, 'font-size: 82px;', 'Starting HR...\n\n')
-    const server = await device.gatt.connect()
-    const service = await server.getPrimaryService('heart_rate')
-    const char = await service.getCharacteristic('heart_rate_measurement')
-    char.oncharacteristicvaluechanged = props.onChange
-    char.startNotifications()
-    return char
-  } 
-
-  function printHeartRate(event) {
-  const heartRate = event.target.value.getInt8(1)
-  const prev = hrData[hrData.length - 1]
-  hrData[hrData.length] = heartRate
-  hrData = hrData.slice(-200)
-  let arrow = ''
-  if (heartRate !== prev) arrow = heartRate > prev ? '⬆' : '⬇'
-  //console.clear()
-  console.graph(hrData)
-  console.log(`%c\n💚 ${heartRate} ${arrow}`, 'font-size: 24px;', '\n\n(To disconnect, refresh or close tab)\n\n')
-}
-
-
-function setupConsoleGraphExample(height, width) {
+  //graph
+  let height = 100
+  let width = 400
   const canvas = document.createElement('canvas')
   const context = canvas.getContext('2d')
   canvas.height = height
@@ -54,14 +22,52 @@ function setupConsoleGraphExample(height, width) {
        background: url("${canvas.toDataURL()}"), -webkit-linear-gradient(#eee, #888);`,
     )
   }
-}
+  },
 
-//console.clear()
-setupConsoleGraphExample(100, 400)
-connect({ onChange: printHeartRate }).catch(console.error)
 
+run: function(){
+let hrData = new Array(200).fill(10)
+async function connect(props) {
+    const device = await navigator.bluetooth.requestDevice({
+    filters: [{ services: ['heart_rate'] }],
+    acceptAllDevices: false,
+    })
+    console.log(`%c\n👩🏼‍⚕️`, 'font-size: 82px;', 'Starting HR...\n\n')
+    const server = await device.gatt.connect()
+    const service = await server.getPrimaryService('heart_rate')
+    const char = await service.getCharacteristic('heart_rate_measurement')
+    char.oncharacteristicvaluechanged = props.onChange
+    char.startNotifications()
+    return char
   }
 
+  function printHeartRate(event) {
+  const heartRate = event.target.value.getInt8(1)
+  const prev = hrData[hrData.length - 1]
+  hrData[hrData.length] = heartRate
+  hrData = hrData.slice(-200)
+  let arrow = ''
+  if (heartRate !== prev) arrow = heartRate > prev ? '⬆' : '⬇'
+  console.graph(hrData)
+  console.log(`%c\n💚 ${heartRate} ${arrow}`, 'font-size: 24px;', '\n\n(To disconnect, refresh or close tab)\n\n')
+} 
+
+connect({ onChange: printHeartRate }).catch(console.error)
+}
+
+});
+
+AFRAME.registerComponent('heartratemonitor', {
+ dependencies: ['pairDevice'],
+
+  init: function() {
+    this.hrData = new Array(200).fill(10)
+
+
+
+  },
 
 
 });
+
+
