@@ -12,6 +12,7 @@ AFRAME.registerComponent('server-logger', {
 * and at the same time provides a place to get timestamps
 */
 AFRAME.registerComponent('timeline', {
+  dependencies: ['raycasterlisten'],
   init: function() {
     this.timestamps = new Map();
     this.timestamps.set("starttime", performance.now())
@@ -126,15 +127,18 @@ AFRAME.registerComponent('timeline', {
     }
 
     setTimeout(() => {
-      sourceNode.play()
+      sourceNode.play();
+      this.patients.get(patientID).setAttribute('material', {color: 'red'});
+      console.log('test_______________________________________________');
+      console.log(this.patients.get(patientID).ac);
     }, startTime);
 
     if(stopTime < Infinity){
       setTimeout(() => {
       sourceNode.pause()
+      this.patients.get(patientID).setAttribute('material', {color: 'green'});
     }, stopTime + startTime);
     }
   }
 
 });
-

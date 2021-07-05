@@ -129,18 +129,24 @@ AFRAME.registerComponent('resonancesource', {
   }
 });
 
-AFRAME.registerComponent('raycaster-listen', {
+AFRAME.registerComponent('raycasterlisten', {
+  schema: {
+    active: {default: false}
+  },
 	init: function () {
     let timer;
     // Use events to figure out what raycaster is listening so we don't have to
     // hardcode the raycaster.
     this.el.addEventListener('raycaster-intersected', evt => {
       this.raycaster = evt.detail.el;
-      timer = setTimeout(() => this.el.setAttribute('material', {color: 'orange', opacity: 0.8}), 5000);
-      //TODO unregister(?) after certain time
+      this.el.setAttribute('material', {color: 'orange'});
+
+      let timer = setTimeout(() => {this.el.setAttribute('active', true);}, 5000);
+      //TODO unregister(?) after certain time / or color gets more dramatic
     });
     this.el.addEventListener('raycaster-intersected-cleared', evt => {
       this.raycaster = null;
+      this.el.setAttribute('material', {color: 'green'});
       clearInterval(timer);
     });
   },
@@ -280,7 +286,6 @@ AFRAME.registerComponent('patient', {
       this.sounds.set(sound, el);
     }
     console.log(this.sounds);
-    
   },
 
   haveProblem: function() {
@@ -288,7 +293,6 @@ AFRAME.registerComponent('patient', {
     //start sound and timer for success/fail
     //treatment progress
     //
-
   },
 
   solveProblem: function() {

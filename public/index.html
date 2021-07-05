@@ -29,6 +29,7 @@
 </head>
 
 <body style='margin : 0px; overflow: hidden;'>
+
 	<div id="startX">
 		<button id="startwithoutHR">
       Start Experience without Heart Rate Monitoring
@@ -36,12 +37,15 @@
 		<button id="startwithHR">
       Start Experience
     </button>
-
+    <button id = "pairing">
+      Pair Device
+    </button>
   </div>
 
 
+
   
-	<a-scene heartratemonitor resonancesystem timeline startexperience stats inspector>
+	<a-scene heartratemonitor pairDevice resonancesystem timeline startexperience stats inspector>
 		<a-assets timeout="3000">
 			<!-- preload sounds and assets here -->
       <audio id="tutorial" src='resources/tutorialPLACEHOLDER.mp3' preload="auto" onended=""></audio>
