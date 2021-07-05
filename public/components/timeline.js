@@ -1,9 +1,15 @@
-AFRAME.registerComponent('server-logger', {
+AFRAME.registerComponent('serverlogger', {
   init: function() {
+  
+  },
+
+  sendLog: function (contentString) {
     let xhr = new XMLHttpRequest();
     xhr.open("POST", "https://VagueInfatuatedGraph.kxv.repl.co", true);
     xhr.setRequestHeader('Content-Type', 'text/plain');
-    xhr.send("Damian, 60, 61, 65, 66, 64, 65, 56");
+    console.log("Sending log: ");
+    console.log(contentString);
+    xhr.send(contentString);
   }
 });
 
@@ -119,12 +125,26 @@ AFRAME.registerComponent('timeline', {
     }, 10000);
     
 
+    // ---- END OF MAIN SCENE TIMEOUT ----
+    setTimeout(() => {
+      this.endScene();
+    }, 1000);
 
   },
 
   endScene: function() {
     //log time
     this.timestamps.set("scene_end", performance.now())
+
+    //stop all sounds
+
+    //send log
+    let log = "";
+    this.timestamps.forEach((value, key) => {
+      log += value + "," + key + "\n";
+    })
+    log += this.el.sceneEl.components.pairdevice.getHRString();
+    this.el.components.serverlogger.sendLog(log);
   },
 
   run: function() {

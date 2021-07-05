@@ -45,7 +45,7 @@
 
 
   
-	<a-scene heartratemonitor pairdevice resonancesystem timeline startexperience stats inspector>
+	<a-scene heartratemonitor pairdevice resonancesystem timeline serverlogger startexperience stats inspector>
 		<a-assets timeout="3000">
 			<!-- preload sounds and assets here -->
       <audio id="tutorial" src='resources/tutorialPLACEHOLDER.mp3' preload="auto" onended=""></audio>
@@ -64,8 +64,6 @@
       <audio id="roomfan" src='resources/A1-0023_Room Tone Ceiling Fan Runs.wav' preload="auto"></audio>
       <img id="hospital360" src='resources/hospital.jpeg' preload='auto'></img>
 		</a-assets>
-
-    <a-entity server-logger></a-entity>
 
     	<!-- define a simple camera -->
 		<a-entity camera="active: true" look-controls wasd-controls position="0 1.6 0">

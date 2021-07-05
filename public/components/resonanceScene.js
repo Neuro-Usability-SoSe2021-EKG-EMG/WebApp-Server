@@ -320,10 +320,8 @@ AFRAME.registerComponent('patient', {
       this.currentProblemTerminal = terminal;
       this.hasProblem = true;
       
-      //flash red //TODO actually flash
+      //make red
       this.el.setAttribute('material', {color: 'red'});
-      setTimeout(() => {this.el.setAttribute('material', {color: 'green'})}, 200);
-      setTimeout(() => {this.el.setAttribute('material', {color: 'red'})}, 400);
 
       //countdown timer
       if (duration != Infinity){

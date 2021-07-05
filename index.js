@@ -13,7 +13,8 @@ serv.listen(2000);
 const fs = require('fs');
 app.use(express.text());
 app.post('/', function (req, res) {
-  fs.writeFile('001.log', req.body, function (err) {
+  let date = new Date(Date.now());
+  fs.writeFile("LOG_" + date.toISOString(), req.body, function (err) {
   if (err) throw err;
   console.log('Received log!');
   res.end();
