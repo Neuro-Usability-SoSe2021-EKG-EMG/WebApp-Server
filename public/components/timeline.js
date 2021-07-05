@@ -12,7 +12,6 @@ AFRAME.registerComponent('server-logger', {
 * and at the same time provides a place to get timestamps
 */
 AFRAME.registerComponent('timeline', {
-  dependencies: ['raycasterlisten'],
   init: function() {
     this.timestamps = new Map();
     this.timestamps.set("starttime", performance.now())
@@ -93,10 +92,22 @@ AFRAME.registerComponent('timeline', {
     let container = document.querySelector("#mainscenecontainer")
     container.object3D.visible = true;
 
-    //let patient 1 cough after 2 seconds, stop after 1
-    this.playPatientSound(1, "#coughing1", 2000, false, 1000);
-    //let patient 1 beep wildly after 4 seconds, stop after 3
-    this.playPatientSound(1, "#ekgBeep3", 4000, true, 3000);
+    //let patient 1 cough after 2 seconds, dont loop, stop after 1s
+    //this.playPatientSound(1, "#coughing1", 2000, false, 1000);
+    //let patient 1 beep wildly after 4 seconds, loop sound, stop after 3s
+    //this.playPatientSound(1, "#ekgBeep3", 4000, true, 3000);
+
+    //--- let patient 1 have a problem
+    // timestamp for this problem
+    let problemName = "Patient 1 coughs";
+    //patient 1 coughs, loop sound, 5000 s treatment time, no end, not terminal
+    setTimeout(() => {
+      this.patients.get(1).components.patient.haveProblem(problemName, "#coughing1", true, 5000, 1000, true);
+      console.log('patient 1 coughs, loop sound, 5000 s treatment time, no end, not terminal');
+    }, 2000);
+    
+
+
   },
 
   endScene: function() {
@@ -115,9 +126,9 @@ AFRAME.registerComponent('timeline', {
    * sound: string with DOM key
    * startTime: int in milliseconds
    * loop: boolean, loop sound?
-   * stopTime: int in milliseconds, for how long should the sound play
+   * duration: int in milliseconds, for how long should the sound play
    */
-  playPatientSound: function(patientID, sound, startTime, loop, stopTime = Infinity){
+  playPatientSound: function(patientID, sound, startTime, loop, duration = Infinity){
     let sourceNode = this.patients.get(patientID).components.patient.sounds.get(sound).components.resonancesource.sourceNode;
 
     if (loop) {
@@ -133,11 +144,11 @@ AFRAME.registerComponent('timeline', {
       console.log(this.patients.get(patientID).ac);
     }, startTime);
 
-    if(stopTime < Infinity){
+    if(duration < Infinity){
       setTimeout(() => {
       sourceNode.pause()
       this.patients.get(patientID).setAttribute('material', {color: 'green'});
-    }, stopTime + startTime);
+    }, duration + startTime);
     }
   }
 

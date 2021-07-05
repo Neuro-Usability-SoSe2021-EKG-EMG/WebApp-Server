@@ -1,4 +1,4 @@
-AFRAME.registerComponent('pairDevice', {
+AFRAME.registerComponent('pairdevice', {
 
   init: function() {
   //graph

@@ -130,23 +130,28 @@ AFRAME.registerComponent('resonancesource', {
 });
 
 AFRAME.registerComponent('raycasterlisten', {
-  schema: {
-    active: {default: false}
-  },
 	init: function () {
     let timer;
+    let patient;
     // Use events to figure out what raycaster is listening so we don't have to
     // hardcode the raycaster.
     this.el.addEventListener('raycaster-intersected', evt => {
       this.raycaster = evt.detail.el;
-      this.el.setAttribute('material', {color: 'orange'});
-
-      let timer = setTimeout(() => {this.el.setAttribute('active', true);}, 5000);
-      //TODO unregister(?) after certain time / or color gets more dramatic
+      console.log(this.el.components.patient);
+      console.log(this.el.components);
+      if(this.el.components.patient){
+        patient = this.el.components.patient;
+        if (patient.hasProblem){
+          this.el.setAttribute('material', {color: 'orange'});
+          timer = setTimeout(() => {
+            patient.endProblem(); 
+            }, patient.currentProblemTreatmentTime);
+        }
+      }
     });
     this.el.addEventListener('raycaster-intersected-cleared', evt => {
       this.raycaster = null;
-      this.el.setAttribute('material', {color: 'green'});
+      if (patient.hasProblem) this.el.setAttribute('material', {color: 'red'});
       clearInterval(timer);
     });
   },
@@ -187,9 +192,7 @@ AFRAME.registerComponent('patient', {
         return value.join('/'); //TODO not working, still standard
       }
     },*/
-    sounds: {type: 'array', default: []},
-    starttime:  {type: 'number', default: 0},
-    stoptime: {type: 'number', default: Infinity}
+    sounds: {type: 'array', default: []}
   },
 
   init: function () {
@@ -203,7 +206,13 @@ AFRAME.registerComponent('patient', {
     */
 
     //Variables
-    this.needsHelp = false;
+    this.alive = true;
+    this.hasProblem = false;
+    this.currentProblemTreatmentTime = 1000;
+    this.currentProblemDuration = Infinity;
+    this.currentProblemTerminal = false;
+    this.currentProblemSound = undefined;
+
     this.sounds = new Map(); //list of {name, starttime, sourceNode}
     //this.nextSoundId = 0;
 
@@ -267,7 +276,7 @@ AFRAME.registerComponent('patient', {
       this.el.appendChild(el);
     }
 
-    //---- creating all choreographed sound entities beforhand ----
+    //---- creating all sound entities beforhand ----
     for (sound of this.data.sounds) {
       console.log("Creating patient sound: " + sound);
       //create new entity sound
@@ -288,17 +297,65 @@ AFRAME.registerComponent('patient', {
     console.log(this.sounds);
   },
 
-  haveProblem: function() {
-    //get start time for logging
-    //start sound and timer for success/fail
-    //treatment progress
-    //
+  /**
+   * Let the patient have a problem with accompaining sounds and durations and severity (terminal)
+   */
+  haveProblem: function(problemName, sound, loop = false, treatmenttime, duration = Inifity , terminal = false) {
+    if (this.alive){
+      this.el.sceneEl.components.timeline.timestamps.set(problemName, performance.now());
+      //play sound of problem
+      if(sound != ""){
+        this.currentProblemSound = this.sounds.get(sound).components.resonancesource.sourceNode;
+        if (loop) {
+        this.currentProblemSound.setAttribute('loop', 'true');
+      } else {
+        this.currentProblemSound.removeAttribute('loop');
+      }
+        this.currentProblemSound.play();
+      }
+
+      this.currentProblemName = problemName;
+      this.currentProblemTreatmentTime = treatmenttime;
+      this.currentProblemDuration = duration;
+      this.currentProblemTerminal = terminal;
+      this.hasProblem = true;
+      
+      //flash red //TODO actually flash
+      this.el.setAttribute('material', {color: 'red'});
+      setTimeout(() => {this.el.setAttribute('material', {color: 'green'})}, 200);
+      setTimeout(() => {this.el.setAttribute('material', {color: 'red'})}, 400);
+
+      //countdown timer
+      if (duration != Infinity){
+        setTimeout(() => {
+          if (this.currentProblemTerminal){
+            this.endProblem(false, true);
+          } else {
+            this.endProblem(false);
+          }
+        }, this.currentProblemDuration);
+      }
+    }
   },
 
-  solveProblem: function() {
-    // log stop time, log success / failure
-    // stop sounds
-    // confirmation sounds
+  endProblem: function(successful = true, terminal = false) {
+    if (this.hasProblem) {
+      this.hasProblem = false;
+      this.currentProblemSound.pause(); // stop sound
+      this.currentProblemSound.currentTime = 0; // reset sound to beginning
+      if(successful){
+        this.el.setAttribute('material', {color: 'green'});
+        this.el.sceneEl.components.timeline.timestamps.set(this.currentProblemName + " - solved succesfull", performance.now());
+      } else if (!terminal) {
+        this.el.setAttribute('material', {color: 'green'});
+        this.el.sceneEl.components.timeline.timestamps.set(this.currentProblemName + " - solved unsuccessfull", performance.now());
+      } else {
+        this.el.setAttribute('material', {color: 'black'});
+        this.el.sceneEl.components.timeline.timestamps.set(this.currentProblemName + " - solved patient died", performance.now());
+        this.alive = false;
+      }
+    }
+    console.log(this.el.sceneEl.components.timeline.timestamps.entries());
   },
 
   /* this was way too fancy... but we need to control is elsewhere
