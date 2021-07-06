@@ -326,14 +326,13 @@ AFRAME.registerComponent('patient', {
       //countdown timer
       if (duration != Infinity){
         setTimeout(() => {
-          if (this.currentProblemTerminal){
-            this.endProblem(false);
-          }
+          this.endProblem(false);
         }, this.currentProblemDuration);
       }
     }
   },
 
+  //TODO audio feedback
   endProblem: function(successful = true) {
     if (this.hasProblem) {
       this.hasProblem = false;

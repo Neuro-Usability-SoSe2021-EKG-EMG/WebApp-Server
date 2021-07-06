@@ -122,13 +122,13 @@ AFRAME.registerComponent('timeline', {
       this.patients.get(1).components.patient.endProblem(false);
       this.patients.get(1).components.patient.haveProblem(problemName, "#coughing1", true, 5000, 10000, false);
       console.log('patient 1 coughs, loop sound, 5000 s treatment time, no end, not terminal');
-    }, 10000);
+    }, 15000);
     
 
     // ---- END OF MAIN SCENE TIMEOUT ----
     setTimeout(() => {
       this.endScene();
-    }, 1000);
+    }, 20000);  //TODO set reasonable timeout
 
   },
 
@@ -137,6 +137,8 @@ AFRAME.registerComponent('timeline', {
     this.timestamps.set("scene_end", performance.now())
 
     //stop all sounds
+
+    //fade to black?
 
     //send log
     let log = "";

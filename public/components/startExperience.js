@@ -24,7 +24,7 @@ AFRAME.registerComponent('startexperience', {
       //document.querySelector("#startX").style.display = "none";
        console.log("Pairing the device");
       //sceneEl.components.heartratemonitor.run();
-      sceneEl.components.pairDevice.run();
+      sceneEl.components.pairdevice.run();
     } 
   }
 });

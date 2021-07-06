@@ -3,6 +3,7 @@ AFRAME.registerComponent('pairdevice', {
   init: function() {
     //init data structure
     this.hrLog = new Map();
+    this.hrData = new Array(200).fill(10)
 
     //graph
     let height = 100
@@ -27,40 +28,39 @@ AFRAME.registerComponent('pairdevice', {
     }
   },
 
+  connect: async function(props) {
+    const device = await navigator.bluetooth.requestDevice({
+    filters: [{ services: ['heart_rate'] }],
+    acceptAllDevices: false,
+    })
+
+    console.log(`%c\n👩🏼‍⚕️`, 'font-size: 82px;', 'Starting HR...\n\n')
+    const server = await device.gatt.connect()
+    const service = await server.getPrimaryService('heart_rate')
+    const char = await service.getCharacteristic('heart_rate_measurement')
+    char.oncharacteristicvaluechanged = props.onChange
+    char.startNotifications()
+    return char
+  },
 
   run: function(){
-    let hrData = new Array(200).fill(10)
-    async function connect(props) {
-        const device = await navigator.bluetooth.requestDevice({
-        filters: [{ services: ['heart_rate'] }],
-        acceptAllDevices: false,
-        })
-        console.log(`%c\n👩🏼‍⚕️`, 'font-size: 82px;', 'Starting HR...\n\n')
-        const server = await device.gatt.connect()
-        const service = await server.getPrimaryService('heart_rate')
-        const char = await service.getCharacteristic('heart_rate_measurement')
-        char.oncharacteristicvaluechanged = props.onChange
-        char.startNotifications()
-        return char
-      }
+     this.printer = this.printHeartRate.bind(this);
+     this.connect({ onChange: this.printer }).catch(console.error)
+   },
 
-      function printHeartRate(event) {
+  printHeartRate: function(event){
         const heartRate = event.target.value.getInt8(1)
 
         this.hrLog.set(performance.now(), heartRate); //current log heart rate
 
-        const prev = hrData[hrData.length - 1]
-        hrData[hrData.length] = heartRate
-        hrData = hrData.slice(-200)
+        const prev = this.hrData[this.hrData.length - 1]
+        this.hrData[this.hrData.length] = heartRate
+        this.hrData = this.hrData.slice(-200)
         let arrow = ''
         if (heartRate !== prev) arrow = heartRate > prev ? '⬆' : '⬇'
-        console.graph(hrData)
+        console.graph(this.hrData)
         console.log(`%c\n💚 ${heartRate} ${arrow}`, 'font-size: 24px;', '\n\n(To disconnect, refresh or close tab)\n\n')
-      } 
-
-    connect({ onChange: printHeartRate }).catch(console.error)
-   },
-
+      }, 
    /**
    * return recorded HR data as string
    */
@@ -68,12 +68,12 @@ AFRAME.registerComponent('pairdevice', {
     let s = "";
     
     //---FAKEDATA---
-    this.hrLog.set(10000, 60);
-    this.hrLog.set(20000, 160);
+    //this.hrLog.set(10000, 60);
+    //this.hrLog.set(20000, 160);
     //TODO REMOVE
 
     this.hrLog.forEach((value, key) => {
-      s += (value + "," + key + "\n"); 
+      s += (key + "," + value + "\n"); 
       } 
     )
 
