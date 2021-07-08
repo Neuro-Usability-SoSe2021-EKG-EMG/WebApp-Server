@@ -21,12 +21,6 @@ AFRAME.registerComponent('timeline', {
   init: function() {
     this.timestamps = new Map();
     this.timestamps.set("starttime", performance.now())
-    this.timestamps.set("tutorial_start", undefined)
-    this.timestamps.set("tutorial_end", undefined)
-    this.timestamps.set("anchoring_end", undefined)
-    this.timestamps.set("scene_start", undefined)
-    this.timestamps.set("scene_end", undefined)
-
     
     //find all patients to have access later
     this.patients = new Map();

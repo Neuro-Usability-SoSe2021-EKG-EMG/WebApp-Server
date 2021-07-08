@@ -14,7 +14,7 @@ const fs = require('fs');
 app.use(express.text());
 app.post('/', function (req, res) {
   let date = new Date(Date.now());
-  fs.writeFile("LOG_" + date.toISOString(), req.body, function (err) {
+  fs.writeFile("logs/LOG_" + date.toISOString(), req.body, function (err) {
   if (err) throw err;
   console.log('Received log!');
   res.end();
