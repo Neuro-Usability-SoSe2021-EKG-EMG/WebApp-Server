@@ -39,10 +39,12 @@ AFRAME.registerComponent('timeline', {
     let container = document.querySelector("#tutorialcontainer")
     container.object3D.visible = true;
     let tutorialSound = document.querySelector("#s_tutorial").components.resonancesource.sourceNode
+    
+    
 
     tutorialSound.onended = (event) => {
-      this.endTutorial();
-      this.startAnchoring();
+      //this.endTutorial();
+      //this.startAnchoring();
     };
 
     tutorialSound.play()

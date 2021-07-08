@@ -56,8 +56,12 @@
       <audio id="ekgBeep2" src='resources/singleEKGbeepPREsilence2s.wav' preload="auto"></audio> <!-- duration 1200ms for 50bpm -->
       <audio id="ekgBeep3" src='resources/singleEKGbeep.wav' preload="auto"></audio>
       <audio id="ekgBeep4" src='resources/singleEKGbeep.wav' preload="auto"></audio>
+      <audio id="ekgBeep99" src='resources/singleEKGbeep.wav' preload="auto"></audio>
       <audio id="IVpump1" src='resources/IVpump.wav' preload="auto"></audio>
       <audio id="IVpump2" src='resources/IVpump.wav' preload="auto"></audio>
+      <audio id="IVpump99" src='resources/IVpump.wav' preload="auto"></audio>
+      <audio id="IValarm1" src='resources/IV_alarm1.wav' preload="auto"></audio>
+      <audio id="IValarm2" src='resources/IV_alarm2.wav' preload="auto"></audio>
       <audio id="coughing1" src='resources/coughing1.wav' preload="auto"></audio>
       <audio id="telephone" src='resources/telephone.wav' preload="auto"></audio>
       <audio id="hello_lowQ" src='resources/hello_lowQ.wav' preload="auto"></audio>
@@ -74,7 +78,10 @@
 
     <!-- ----TUTORIAL CONTENT---- -->
     <a-entity id="tutorialcontainer" visible="false">
-      <a-entity id="s_tutorial" position='0 0 -0.5' material='opacity: 0.5' resonancesource="src: #tutorial;"></a-entity>
+       <!-- narrator -->
+      <a-entity id="s_tutorial" position='-0.1 1.7 -0.5' material="color: blue" geometry="primitive: box; width: 0.2; height: 0.2; depth: 0.2" resonancesource="src: #tutorial;"></a-entity>
+      <!-- tutorial patient -->
+      <a-entity id="t_patient" visible="true" position='+1.5 1.4 -1.5' patient='id:99; ekg:true; hr: 63; ivpump: true; sounds: #IValarm2' data-raycastable raycasterlisten></a-entity>
     </a-entity>
     
 
@@ -94,8 +101,8 @@
       <!-- animation box test <a-box position='-0.5 1.5 -1' animation="property: object3D.position.x; to: -1.0; dur: 1000; dir: alternate; easing: easeInOutElastic; loop: true" material='color: blue;' depth='0.2' height='0.2' width='0.2' data-raycastable raycaster-listen patient='id:1'></a-box>
       -->
       
-      <a-entity position='-2 1 -2' patient='id:1; ekg:false; hr: 50; ivpump: false; sounds: #coughing1, #ekgBeep3, #ekgBeep4' data-raycastable raycasterlisten></a-entity>
-      <!-- <a-entity position='2 1 -2' patient='id:2; ekg:true; hr: 80; cough: true' data-raycastable raycaster-listen></a-entity> -->
+      <a-entity position='-2 1.3 -2' patient='id:1; ekg:false; hr: 50; ivpump: false; sounds: #coughing1, #ekgBeep3, #ekgBeep4' data-raycastable raycasterlisten></a-entity>
+      <a-entity position='2 1.3 -2' patient='id:2; ekg:false; hr: 80' data-raycastable raycaster-listen></a-entity>
     
 
       <!-- ENVIRONMENTAL SOUNDS -->
