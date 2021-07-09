@@ -111,30 +111,30 @@ AFRAME.registerComponent('timeline', {
     let container = document.querySelector("#anchoringcontainer")
     container.object3D.visible = true;
 
-    //TODO HR STUFFS
-
-
-    let anchoringSound = document.querySelector("#pinknoise")
-
-    anchoringSound.volume = 0.2;
-    anchoringSound.play();
+    //create pink noise procedurally
+    let context = this.el.sceneEl.components.resonancesystem.audioContext;
+    let pinkNoise = context.createPinkNoise();
+    let gainNode = context.createGain();
+    pinkNoise.connect(gainNode);
+    gainNode.connect(context.destination);
+    gainNode.gain.setValueAtTime(0.11, context.currentTime);
 
      //make skippable
     document.addEventListener('keyup', event => {
-      if (event.code === 'Space' && anchoringSound) {
-        anchoringSound.pause();
+      if (event.code === 'Space' && pinkNoise) {
+        gainNode.disconnect();
         this.endAnchoring();
         this.startScene();
       }
     }, {once: true})
 
-    anchoringSound.onended = (event) => {
+    //play pink noise for X seconds
+    this.timeouts.push(setTimeout(() => {
+      gainNode.disconnect();
       this.endAnchoring();
       this.startScene();
-    };
+    }, 10000));
 
-    //anchoringSound.currentTime = 28; //PLAY ONLY LAST 2 SECONDS, TODO REMOVE FOR PRODUCTION
-    anchoringSound.play()
   },
 
   endAnchoring: function() {

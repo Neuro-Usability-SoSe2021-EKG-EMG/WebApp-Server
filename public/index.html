@@ -26,6 +26,8 @@
 	</script>
 	<script src="components/heartrate.js">
 	</script>
+  <script src="components/noise.js">
+	</script>
 </head>
 
 <body style='margin : 0px; overflow: hidden;'>
@@ -52,8 +54,6 @@
       <audio id="t_IValarm2" src='resources/IV_alarm2.wav'></audio>
       <audio id="IVpump99" src='resources/IVpump.wav'></audio>
       <audio id="ekgBeep99" src='resources/singleEKGbeepPREsilence2s.wav'></audio>
-
-      <audio id="pinknoise" src='resources/pinknoise.wav'></audio>
 
       <audio id="ekgBeep1" src='resources/singleEKGbeepPREsilence2s.wav'></audio> <!-- duration 750ms for 80bpm -->
       <audio id="ekgBeep2" src='resources/singleEKGbeepPREsilence2s.wav'></audio> <!-- duration 1200ms for 50bpm -->
@@ -90,7 +90,6 @@
     <!-- ----ANCHORING CONTENT---- -->
     <a-entity id="anchoringcontainer" visible="false">
       <a-sky color="#777777"></a-sky>
-      <!-- <a-entity id="s_anchor" position='0 0 0' material='opacity: 0.5' resonancesource="src: #pinknoise"></a-entity> -->
     </a-entity>
 
 
