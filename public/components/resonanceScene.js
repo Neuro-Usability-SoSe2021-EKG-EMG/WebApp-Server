@@ -152,7 +152,7 @@ AFRAME.registerComponent('raycasterlisten', {
     this.el.addEventListener('raycaster-intersected-cleared', evt => {
       this.raycaster = null;
       if (patient.hasProblem) this.el.setAttribute('material', {color: 'red'});
-      clearInterval(timer);
+      clearTimeout(timer);
     });
   },
 
@@ -177,8 +177,7 @@ AFRAME.registerComponent('patient', {
     ekg: { type: 'boolean', default: true },
     hr: {type: 'number', default: 60},
     ivpump: { type: 'boolean', default: false },
-    ventilator: { type: 'boolean', default: false },
-    cough: { type: 'boolean', default: false },      //[#id, duration (ms)]
+    ventilator: { type: 'boolean', default: false },  //[#id, duration (ms)]
     /* this was way too fancy... but we need to control is elsewhere
     sounds: {
       default: new Map(),
@@ -206,7 +205,7 @@ AFRAME.registerComponent('patient', {
     */
 
     //Variables
-    this.alive = true;
+    this.alive = false;
     this.hasProblem = false;
     this.currentProblemTreatmentTime = 1000;
     this.currentProblemDuration = Infinity;
@@ -222,7 +221,7 @@ AFRAME.registerComponent('patient', {
 
     //---- EKG ----
     console.log("HR: " + this.data.hr);
-    this.ekgpause = 60 / this.data.hr - 0.62; //in seconds
+    this.ekgpause = (60 / this.data.hr) -0.62; //in seconds
     console.log("pause between ekg beeps: " + this.ekgpause);
 
     console.log('#ekgBeep'+this.data.id);
@@ -230,15 +229,16 @@ AFRAME.registerComponent('patient', {
       this.el.setAttribute('resonancesource', {
         src: '#ekgBeep'+this.data.id,
         loop: false ,
-        autoplay: true,
-        gain: 0.05
+        autoplay: false,
+        gain: 0.04
       });
       this.ekgSound = this.el.components.resonancesource.sourceNode;
+      console.log(this.ekgSound)
      
 
       //custom looping for variable HR
       this.ekgSound.onended =(event) => {
-        event.target.currentTime = 2 - this.ekgpause; //the actual file is 2 s of silence + 0.62 of beep long
+        event.target.currentTime = 2.0 - this.ekgpause; //the actual file is 2 s of silence + 0.62 of beep long
         event.target.play();
       };
     }
@@ -250,31 +250,30 @@ AFRAME.registerComponent('patient', {
       el.setAttribute('resonancesource', {
         src: '#IVpump'+this.data.id,
         loop: true,
-        autoplay: true,
+        autoplay: false,
         gain: 0.8
       });
       el.setAttribute('geometry',{primitive: 'sphere', radius: 0.3});
       this.el.appendChild(el);
-      //this.ivSound = this.el.components.resonancesource.sourceNode;
+      this.ivSound = document.querySelector('#IVpump'+this.data.id);
     }
 
     //---- ventilator ----
     //TODO
-    if (this.data.ventilator) {this.data.cough = false}
-
-    //---- cough ----
-    if(this.data.cough){
-      //create new entity for IV sound
+    if (this.data.ventilator) {
+      //create new entity for ventilator sound
       let el = document.createElement('a-entity');
       el.setAttribute('resonancesource', {
-        src: '#coughing1',
-        loop: false,
-        autoplay: true,
+        src: '#ventilator'+this.data.id,
+        loop: true,
+        autoplay: false,
         gain: 0.8
       });
-      el.setAttribute('geometry',{primitive: 'triangle'});
+      el.setAttribute('geometry',{primitive: 'triangle', radius: 0.3});
       this.el.appendChild(el);
+      this.ventilatorSound = document.querySelector('#ventilator'+this.data.id);
     }
+
 
     //---- creating all sound entities beforhand ----
     for (sound of this.data.sounds) {
@@ -302,7 +301,12 @@ AFRAME.registerComponent('patient', {
    */
   haveProblem: function(problemName, sound, loop = false, treatmenttime, duration = Inifity , terminal = false) {
     if (this.alive){
+      console.log("Patient " + this.data.id + " is having a problem: " + problemName + ", with sound: " + sound);
       this.el.sceneEl.components.timeline.timestamps.set(problemName, performance.now());
+
+      //emit event
+      this.el.emit('havingproblem');  //TODO needs to bubble?
+
       //play sound of problem
       if(sound != ""){
         this.currentProblemSound = this.sounds.get(sound).components.resonancesource.sourceNode;
@@ -338,6 +342,10 @@ AFRAME.registerComponent('patient', {
       this.hasProblem = false;
       this.currentProblemSound.pause(); // stop sound
       this.currentProblemSound.currentTime = 0; // reset sound to beginning
+      
+      //emit event
+      this.el.emit('problemresolved');  //TODO needs to bubble?
+
       if(successful){
         this.el.setAttribute('material', {color: 'green'});
         this.el.sceneEl.components.timeline.timestamps.set(this.currentProblemName + " - solved succesfull", performance.now());
@@ -351,6 +359,33 @@ AFRAME.registerComponent('patient', {
       }
     }
     console.log(this.el.sceneEl.components.timeline.timestamps.entries());
+  },
+
+  spawn: function() {
+    //make visible
+    this.el.object3D.visible = true
+
+    //start sounds
+    if (this.data.ekg) {this.ekgSound.play()}
+    if (this.data.ivpump)  {this.ivSound.play()}
+    if (this.data.ventilator)  {this.ventilatorSound.play()}
+
+    //be alive
+    this.alive = true
+  },
+
+  remove: function() {
+    //make invisible
+    this.el.object3D.visible = false
+
+    //stop all sounds
+    if (this.data.ekg) {this.ekgSound.pause()}
+    if (this.data.ivpump)  {this.ivSound.pause()}
+    if (this.data.ventilator)  {this.ventilatorSound.pause()}
+    
+    for (s of this.sounds) {
+      s.pause()
+    }
   },
 
   /* this was way too fancy... but we need to control is elsewhere

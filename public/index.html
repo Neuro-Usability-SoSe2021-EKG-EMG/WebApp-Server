@@ -11,7 +11,7 @@
 	<link rel='stylesheet' href='style.css'>
 
 	<title>Prototype ICU</title>
-	<!-- include A-Frame -->
+	<!-- includedodecahedron A-Frame -->
 	<script src="https://aframe.io/releases/1.2.0/aframe.min.js">
 
 	</script>
@@ -48,18 +48,19 @@
 	<a-scene heartratemonitor pairdevice resonancesystem timeline serverlogger startexperience stats inspector>
 		<a-assets timeout="3000">
 			<!-- preload sounds and assets here -->
-      <audio id="tutorial" src='resources/tutorialPLACEHOLDER.mp3' preload="auto" onended=""></audio>
+      <audio id="tutorial" src='resources/tutorial.wav' preload="auto" onended=""></audio>
+      <audio id="t_IValarm2" src='resources/IV_alarm2.wav' preload="auto"></audio>
+      <audio id="IVpump99" src='resources/IVpump.wav' preload="auto"></audio>
+      <audio id="ekgBeep99" src='resources/singleEKGbeepPREsilence2s.wav' preload="auto"></audio>
 
       <audio id="pinknoise" src='resources/pinknoise.wav' preload="auto"></audio>
 
       <audio id="ekgBeep1" src='resources/singleEKGbeepPREsilence2s.wav' preload="auto"></audio> <!-- duration 750ms for 80bpm -->
       <audio id="ekgBeep2" src='resources/singleEKGbeepPREsilence2s.wav' preload="auto"></audio> <!-- duration 1200ms for 50bpm -->
-      <audio id="ekgBeep3" src='resources/singleEKGbeep.wav' preload="auto"></audio>
-      <audio id="ekgBeep4" src='resources/singleEKGbeep.wav' preload="auto"></audio>
-      <audio id="ekgBeep99" src='resources/singleEKGbeep.wav' preload="auto"></audio>
+      <audio id="ekgBeep3" src='resources/singleEKGbeepPREsilence2s.wav' preload="auto"></audio>
+      <audio id="ekgBeep4" src='resources/singleEKGbeepPREsilence2s.wav' preload="auto"></audio>
       <audio id="IVpump1" src='resources/IVpump.wav' preload="auto"></audio>
       <audio id="IVpump2" src='resources/IVpump.wav' preload="auto"></audio>
-      <audio id="IVpump99" src='resources/IVpump.wav' preload="auto"></audio>
       <audio id="IValarm1" src='resources/IV_alarm1.wav' preload="auto"></audio>
       <audio id="IValarm2" src='resources/IV_alarm2.wav' preload="auto"></audio>
       <audio id="coughing1" src='resources/coughing1.wav' preload="auto"></audio>
@@ -79,16 +80,17 @@
     <!-- ----TUTORIAL CONTENT---- -->
     <a-entity id="tutorialcontainer" visible="false">
        <!-- narrator -->
-      <a-entity id="s_tutorial" position='-0.1 1.7 -0.5' material="color: blue" geometry="primitive: box; width: 0.2; height: 0.2; depth: 0.2" resonancesource="src: #tutorial;"></a-entity>
+      <a-entity id="s_tutorial" position='-0.1 1.7 -0.5' material="color: blue" geometry="primitive: dodecahedron; radius: 0.2" resonancesource="src: #tutorial;"></a-entity>
       <!-- tutorial patient -->
-      <a-entity id="t_patient" visible="true" position='+1.5 1.4 -1.5' patient='id:99; ekg:true; hr: 63; ivpump: true; sounds: #IValarm2' data-raycastable raycasterlisten></a-entity>
+      <a-entity id="t_patient" visible="false" position='+1.5 1.3 -1.5' patient='id:99; ekg:true; hr: 63; ivpump: true; sounds: #t_IValarm2' data-raycastable raycasterlisten></a-entity>
     </a-entity>
     
 
 
     <!-- ----ANCHORING CONTENT---- -->
     <a-entity id="anchoringcontainer" visible="false">
-      <a-entity id="s_anchor" position='0 0 0' material='opacity: 0.5' resonancesource="src: #pinknoise"></a-entity>
+      <a-sky color="#777777"></a-sky>
+      <!-- <a-entity id="s_anchor" position='0 0 0' material='opacity: 0.5' resonancesource="src: #pinknoise"></a-entity> -->
     </a-entity>
 
 

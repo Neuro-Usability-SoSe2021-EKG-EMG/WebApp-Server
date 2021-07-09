@@ -21,6 +21,8 @@ AFRAME.registerComponent('timeline', {
   init: function() {
     this.timestamps = new Map();
     this.timestamps.set("starttime", performance.now())
+
+    this.timeouts = [];
     
     //find all patients to have access later
     this.patients = new Map();
@@ -32,27 +34,71 @@ AFRAME.registerComponent('timeline', {
     console.log(this.patients)
   },
 
+  clearAllTimeouts: function() {
+    for (t of this.timeouts) {
+      clearTimeout(t);
+    }
+    timeouts = []
+  },
+
   startTutorial: function() {
     //log time
     this.timestamps.set("tutorial_start", performance.now())
     //make all things tutorial visible
     let container = document.querySelector("#tutorialcontainer")
     container.object3D.visible = true;
+
+    let t_patient = document.querySelector("#t_patient")
     let tutorialSound = document.querySelector("#s_tutorial").components.resonancesource.sourceNode
-    
-    
+
+    //make skippable
+    document.addEventListener('keyup', event => {
+      if (event.code === 'Space' && tutorialSound) {
+        tutorialSound.pause();
+        this.endTutorial();
+        this.startAnchoring();
+      }
+    }, {once: true})
+
+    tutorialSound.play();
+
+    //make patient appear
+    this.timeouts.push(setTimeout(() => {
+      t_patient.components.patient.spawn()
+    }, 19000));
+    //patient has problem
+    this.timeouts.push(setTimeout(() => {
+      //pause IV sound, as it's part of the problem sound
+      t_patient.components.patient.ivSound.pause()
+      t_patient.components.patient.haveProblem("Tutorial_problem", "#t_IValarm2", true, 5000, Infinity, false)
+    }, 21000));
+
+    //wait for user to treat patient
+    this.timeouts.push(setTimeout(() => {
+      tutorialSound.pause();
+      this.el.addEventListener('problemresolved', event => {
+        //play IVpump again
+        event.target.components.patient.ivSound.play();
+        //continue tutorial
+        tutorialSound.play();
+        this.timeouts.push(setTimeout(() => {
+          t_patient.remove();
+        }, 4000));
+      }, {once: true});
+    }, 34000));    
 
     tutorialSound.onended = (event) => {
-      //this.endTutorial();
-      //this.startAnchoring();
+      this.endTutorial();
+      this.startAnchoring();
     };
-
-    tutorialSound.play()
   },
 
   endTutorial: function() {
     //log time
     this.timestamps.set("tutorial_end", performance.now())
+
+    //do not carry over any timeouts into next scene
+    this.clearAllTimeouts();
 
     let container = document.querySelector("#tutorialcontainer")
     container.object3D.visible = false;
@@ -68,14 +114,26 @@ AFRAME.registerComponent('timeline', {
     //TODO HR STUFFS
 
 
-    let anchoringSound = document.querySelector("#s_anchor").components.resonancesource.sourceNode
+    let anchoringSound = document.querySelector("#pinknoise")
+
+    anchoringSound.volume = 0.2;
+    anchoringSound.play();
+
+     //make skippable
+    document.addEventListener('keyup', event => {
+      if (event.code === 'Space' && anchoringSound) {
+        anchoringSound.pause();
+        this.endAnchoring();
+        this.startScene();
+      }
+    }, {once: true})
 
     anchoringSound.onended = (event) => {
       this.endAnchoring();
       this.startScene();
     };
 
-    anchoringSound.currentTime = 28; //PLAY ONLY LAST 2 SECONDS, TODO REMOVE FOR PRODUCTION
+    //anchoringSound.currentTime = 28; //PLAY ONLY LAST 2 SECONDS, TODO REMOVE FOR PRODUCTION
     anchoringSound.play()
   },
 
@@ -94,6 +152,13 @@ AFRAME.registerComponent('timeline', {
     let container = document.querySelector("#mainscenecontainer")
     container.object3D.visible = true;
 
+    //spawn patients
+    this.patients.forEach((value, key) => {
+      if (key != 99){
+        value.components.patient.spawn();
+      }
+    }
+
     //let patient 1 cough after 2 seconds, dont loop, stop after 1s
     //this.playPatientSound(1, "#coughing1", 2000, false, 1000);
     //let patient 1 beep wildly after 4 seconds, loop sound, stop after 3s
@@ -102,29 +167,29 @@ AFRAME.registerComponent('timeline', {
     //--- let patient 1 have a problem
 
     //patient 1 coughs, loop sound, 5000 s treatment time, no end, not terminal
-    setTimeout(() => {
+    this.timeouts.push(setTimeout(() => {
       let problemName = "Patient 1 coughs";
       //unsuccesfully solve any problem that is still there
       this.patients.get(1).components.patient.endProblem(false);
       this.patients.get(1).components.patient.haveProblem(problemName, "#coughing1", true, 5000, 10000, true);
       console.log('patient 1 coughs, loop sound, 5000 s treatment time, no end, not terminal');
-    }, 2000);
+    }, 2000));
 
     //--- let patient 1 have a problem
     //patient 1 coughs, loop sound, 5000 s treatment time, no end, not terminal
-    setTimeout(() => {
+    this.timeouts.push(setTimeout(() => {
       let problemName = "Patient 1 IV obscruction";
       //unsuccesfully solve any problem that is still there
       this.patients.get(1).components.patient.endProblem(false);
       this.patients.get(1).components.patient.haveProblem(problemName, "#coughing1", true, 5000, 10000, false);
       console.log('patient 1 coughs, loop sound, 5000 s treatment time, no end, not terminal');
-    }, 15000);
+    }, 15000));
     
 
     // ---- END OF MAIN SCENE TIMEOUT ----
-    setTimeout(() => {
+    this.timeouts.push(setTimeout(() => {
       this.endScene();
-    }, 20000);  //TODO set reasonable timeout
+    }, 20000));  //TODO set reasonable timeout
 
   },
 
@@ -135,6 +200,9 @@ AFRAME.registerComponent('timeline', {
     //stop all sounds
 
     //fade to black?
+
+    //do not carry over any timeouts into next scene
+    this.clearAllTimeouts();
 
     //send log
     let log = "";
