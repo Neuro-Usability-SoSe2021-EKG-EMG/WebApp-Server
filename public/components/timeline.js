@@ -65,13 +65,13 @@ AFRAME.registerComponent('timeline', {
     //make patient appear
     this.timeouts.push(setTimeout(() => {
       t_patient.components.patient.spawn()
-    }, 19000));
+    }, 18000));
     //patient has problem
     this.timeouts.push(setTimeout(() => {
       //pause IV sound, as it's part of the problem sound
       t_patient.components.patient.ivSound.pause()
-      t_patient.components.patient.haveProblem("Tutorial_problem", "#t_IValarm2", true, 5000, Infinity, false)
-    }, 21000));
+      t_patient.components.patient.haveProblem("Tutorial_problem", "#t_IValarm2", true, 7000, Infinity, false)
+    }, 19000));
 
     //wait for user to treat patient
     this.timeouts.push(setTimeout(() => {
@@ -85,7 +85,7 @@ AFRAME.registerComponent('timeline', {
           t_patient.remove();
         }, 4000));
       }, {once: true});
-    }, 34000));    
+    }, 32000));    
 
     tutorialSound.onended = (event) => {
       this.endTutorial();
@@ -155,9 +155,10 @@ AFRAME.registerComponent('timeline', {
     //spawn patients
     this.patients.forEach((value, key) => {
       if (key != 99){
+        console.log(value);
         value.components.patient.spawn();
       }
-    }
+    })
 
     //let patient 1 cough after 2 seconds, dont loop, stop after 1s
     //this.playPatientSound(1, "#coughing1", 2000, false, 1000);

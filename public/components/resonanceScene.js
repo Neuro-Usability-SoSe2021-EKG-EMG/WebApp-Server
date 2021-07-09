@@ -105,7 +105,7 @@ AFRAME.registerComponent('resonancesource', {
     this.sceneSource = undefined;
 
     //tick throttle for performance
-    this.thick = AFRAME.utils.throttleTick(this.tick, 50, this);
+    this.tick = AFRAME.utils.throttleTick(this.tick, 50, this);
 
     //get audio source from aframe asset management with #id
     this.sourceNode = document.querySelector(this.data.src);
@@ -253,7 +253,7 @@ AFRAME.registerComponent('patient', {
         autoplay: false,
         gain: 0.8
       });
-      el.setAttribute('geometry',{primitive: 'sphere', radius: 0.3});
+      el.setAttribute('geometry',{primitive: 'octahedron', radius: 0.3});
       this.el.appendChild(el);
       this.ivSound = document.querySelector('#IVpump'+this.data.id);
     }
@@ -383,8 +383,9 @@ AFRAME.registerComponent('patient', {
     if (this.data.ivpump)  {this.ivSound.pause()}
     if (this.data.ventilator)  {this.ventilatorSound.pause()}
     
-    for (s of this.sounds) {
-      s.pause()
+    for (s of this.sounds.values()) {
+      console.log(s)
+      s.components.resonancesource.sourceNode.pause()
     }
   },
 

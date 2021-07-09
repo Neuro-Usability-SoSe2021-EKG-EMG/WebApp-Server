@@ -46,27 +46,27 @@
 
   
 	<a-scene heartratemonitor pairdevice resonancesystem timeline serverlogger startexperience stats inspector>
-		<a-assets timeout="3000">
+		<a-assets timeout="5000">
 			<!-- preload sounds and assets here -->
-      <audio id="tutorial" src='resources/tutorial.wav' preload="auto" onended=""></audio>
-      <audio id="t_IValarm2" src='resources/IV_alarm2.wav' preload="auto"></audio>
-      <audio id="IVpump99" src='resources/IVpump.wav' preload="auto"></audio>
-      <audio id="ekgBeep99" src='resources/singleEKGbeepPREsilence2s.wav' preload="auto"></audio>
+      <audio id="tutorial" src='resources/tutorial.mp3' preload="auto" onended=""></audio>
+      <audio id="t_IValarm2" src='resources/IV_alarm2.wav'></audio>
+      <audio id="IVpump99" src='resources/IVpump.wav'></audio>
+      <audio id="ekgBeep99" src='resources/singleEKGbeepPREsilence2s.wav'></audio>
 
-      <audio id="pinknoise" src='resources/pinknoise.wav' preload="auto"></audio>
+      <audio id="pinknoise" src='resources/pinknoise.wav'></audio>
 
-      <audio id="ekgBeep1" src='resources/singleEKGbeepPREsilence2s.wav' preload="auto"></audio> <!-- duration 750ms for 80bpm -->
-      <audio id="ekgBeep2" src='resources/singleEKGbeepPREsilence2s.wav' preload="auto"></audio> <!-- duration 1200ms for 50bpm -->
-      <audio id="ekgBeep3" src='resources/singleEKGbeepPREsilence2s.wav' preload="auto"></audio>
-      <audio id="ekgBeep4" src='resources/singleEKGbeepPREsilence2s.wav' preload="auto"></audio>
-      <audio id="IVpump1" src='resources/IVpump.wav' preload="auto"></audio>
-      <audio id="IVpump2" src='resources/IVpump.wav' preload="auto"></audio>
-      <audio id="IValarm1" src='resources/IV_alarm1.wav' preload="auto"></audio>
-      <audio id="IValarm2" src='resources/IV_alarm2.wav' preload="auto"></audio>
-      <audio id="coughing1" src='resources/coughing1.wav' preload="auto"></audio>
-      <audio id="telephone" src='resources/telephone.wav' preload="auto"></audio>
-      <audio id="hello_lowQ" src='resources/hello_lowQ.wav' preload="auto"></audio>
-      <audio id="roomfan" src='resources/A1-0023_Room Tone Ceiling Fan Runs.wav' preload="auto"></audio>
+      <audio id="ekgBeep1" src='resources/singleEKGbeepPREsilence2s.wav'></audio> <!-- duration 750ms for 80bpm -->
+      <audio id="ekgBeep2" src='resources/singleEKGbeepPREsilence2s.wav'></audio> <!-- duration 1200ms for 50bpm -->
+      <audio id="ekgBeep3" src='resources/singleEKGbeepPREsilence2s.wav'></audio>
+      <audio id="ekgBeep4" src='resources/singleEKGbeepPREsilence2s.wav' ></audio>
+      <audio id="IVpump1" src='resources/IVpump.wav'></audio>
+      <audio id="IVpump2" src='resources/IVpump.wav'></audio>
+      <audio id="IValarm1" src='resources/IV_alarm1.wav'></audio>
+      <audio id="IValarm2" src='resources/IV_alarm2.wav'></audio>
+      <audio id="coughing1" src='resources/coughing1.wav'></audio>
+      <audio id="telephone" src='resources/telephone.wav'></audio>
+      <audio id="hello_lowQ" src='resources/hello_lowQ.wav'></audio>
+      <audio id="roomfan" src='resources/A1-0023_Room Tone Ceiling Fan Runs.wav'></audio>
       <img id="hospital360" src='resources/hospital.jpeg' preload='auto'></img>
 		</a-assets>
 
@@ -80,7 +80,7 @@
     <!-- ----TUTORIAL CONTENT---- -->
     <a-entity id="tutorialcontainer" visible="false">
        <!-- narrator -->
-      <a-entity id="s_tutorial" position='-0.1 1.7 -0.5' material="color: blue" geometry="primitive: dodecahedron; radius: 0.2" resonancesource="src: #tutorial;"></a-entity>
+      <a-entity id="s_tutorial" position='-0.1 1.7 -0.5' material="color: blue" geometry="primitive: dodecahedron; radius: 0.2" resonancesource="src: #tutorial; autoplay: true"></a-entity>
       <!-- tutorial patient -->
       <a-entity id="t_patient" visible="false" position='+1.5 1.3 -1.5' patient='id:99; ekg:true; hr: 63; ivpump: true; sounds: #t_IValarm2' data-raycastable raycasterlisten></a-entity>
     </a-entity>
