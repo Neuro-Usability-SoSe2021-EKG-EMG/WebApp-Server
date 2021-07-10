@@ -10,7 +10,7 @@ AFRAME.registerComponent('resonancesystem', {
     // Audio scene globals
     this.audioContext = new (window.AudioContext || window.webkitAudioContext);
     this.resonanceAudioScene = new ResonanceAudio(this.audioContext, { ambisonicOrder: 3 });
-    // Connect the scene’s binaural output to stereo out.
+    // Connect the scene’s binaural output to stereNodeo out.
     this.resonanceAudioScene.output.connect(this.audioContext.destination);
 
     //Source Handling
@@ -82,6 +82,13 @@ AFRAME.registerComponent('resonancesystem', {
         s.sourceNode.play();
       }
     });
+  }, 
+  
+  stop: function () {
+    this.sources.forEach(function (s) {
+      s.sourceNode.pause();
+    });
+    this.audioContext.suspend();
   }
 });
 
@@ -131,38 +138,49 @@ AFRAME.registerComponent('resonancesource', {
 
 AFRAME.registerComponent('raycasterlisten', {
 	init: function () {
-    let timer;
-    let patient;
+    this.timer = null;
+    this.patient = null;
     // Use events to figure out what raycaster is listening so we don't have to
     // hardcode the raycaster.
     this.el.addEventListener('raycaster-intersected', evt => {
       this.raycaster = evt.detail.el;
-      console.log(this.el.components.patient);
-      console.log(this.el.components);
-      if(this.el.components.patient){
-        patient = this.el.components.patient;
-        if (patient.hasProblem){
-          this.el.setAttribute('material', {color: 'orange'});
-          timer = setTimeout(() => {
-            patient.endProblem(); 
-            }, patient.currentProblemTreatmentTime);
-        }
-      }
     });
     this.el.addEventListener('raycaster-intersected-cleared', evt => {
       this.raycaster = null;
-      if (patient.hasProblem) this.el.setAttribute('material', {color: 'red'});
-      clearTimeout(timer);
     });
   },
 
   tick: function () {
-    if (!this.raycaster) { return; }  // Not intersecting.
-
-    //TODO add logic to looking at things
-    //let intersection = this.raycaster.components.raycaster.getIntersection(this.el);
-    //if (!intersection) { return; }
-    //console.log(intersection.point);
+    // Not intersecting.
+    if (!this.raycaster) {
+      if(!this.timer) {
+        return;
+      } else {
+        if (this.patient.hasProblem){
+          this.el.setAttribute('material', {color: 'red'});
+        }
+        clearTimeout(this.timer);
+        this.timer = null;
+        this.patient = null;
+        return;
+      }
+    }  
+    if (!this.patient) {
+      console.log(this.el.components.patient);
+      console.log(this.el.components);
+      if(this.el.components.patient){
+        this.patient = this.el.components.patient;
+      }
+    }
+    if (!this.timer) {
+      if (this.patient.hasProblem){
+          this.el.setAttribute('material', {color: 'orange'});
+          this.timer = setTimeout(() => {
+            this.patient.endProblem(); 
+            this.timer = null;
+          }, this.patient.currentProblemTreatmentTime);
+      }
+    }
   }
 });
 
@@ -216,7 +234,7 @@ AFRAME.registerComponent('patient', {
     //this.nextSoundId = 0;
 
     //---- Appearance ----
-    this.el.setAttribute('geometry',{primitive: 'sphere', radius: 0.8});
+    this.el.setAttribute('geometry',{primitive: 'cylinder', segmentsRadial: 6, radius: 0.8, height: 2.6});
     this.el.setAttribute('material',{color: 'green', opacity: 0.8});
 
     //---- EKG ----
@@ -301,6 +319,7 @@ AFRAME.registerComponent('patient', {
    */
   haveProblem: function(problemName, sound, loop = false, treatmenttime, duration = Inifity , terminal = false) {
     if (this.alive){
+      this.endProblem(false);
       console.log("Patient " + this.data.id + " is having a problem: " + problemName + ", with sound: " + sound);
       this.el.sceneEl.components.timeline.timestamps.set(problemName, performance.now());
 
@@ -343,12 +362,11 @@ AFRAME.registerComponent('patient', {
       this.currentProblemSound.pause(); // stop sound
       this.currentProblemSound.currentTime = 0; // reset sound to beginning
       
-      //emit event
-      this.el.emit('problemresolved');  //TODO needs to bubble?
-
       if(successful){
         this.el.setAttribute('material', {color: 'green'});
         this.el.sceneEl.components.timeline.timestamps.set(this.currentProblemName + " - solved succesfull", performance.now());
+        //emit event
+        this.el.emit('problemresolvedsuccessful');
       } else if (!this.currentProblemTerminal) {
         this.el.setAttribute('material', {color: 'green'});
         this.el.sceneEl.components.timeline.timestamps.set(this.currentProblemName + " - solved unsuccessfull", performance.now());
@@ -426,4 +444,36 @@ AFRAME.registerComponent('telephone', {
     s.currentTime = 0; //set ringing sound to 0
     this.hello.components.resonancesource.sourceNode.play();
   },
+});
+
+AFRAME.registerComponent('narrator', {
+  init: function () {
+    this.tutorialsound;
+    this.treatmentstartsounds = [];
+    this.treatmentcompletesounds = [];
+
+    //event handling
+    let onproblemresolvedsuccessful = this.onproblemresolvedsuccessful.bind(this);
+    document.addEventListener('problemresolvedsuccessful', onproblemresolvedsuccessful);
+
+    //---- Appearance ----
+    this.el.setAttribute('geometry',{primitive: 'dodecahedron', radius: 0.1});
+    this.el.setAttribute('material',{color: 'blue', opacity: 0.8});
+    this.el.setAttribute('animation',{property: 'object3D.rotation.y', easing: 'linear', dur: 15000, from: 0, to: 360, loop: true});
+
+    this.goodworkEl = document.createElement('a-entity');
+    this.goodworkEl.setAttribute('resonancesource', {
+        src: '#goodwork',
+        loop: false ,
+        autoplay: false,
+        gain: 1
+    });
+    this.goodworkEl.setAttribute('material',{opacity: 0});
+    this.el.appendChild(this.goodworkEl);
+  },
+  
+  onproblemresolvedsuccessful: function(event){
+      this.goodworkEl.components.resonancesource.sourceNode.play();
+  }
+
 });

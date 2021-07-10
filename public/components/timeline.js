@@ -23,6 +23,10 @@ AFRAME.registerComponent('timeline', {
     this.timestamps.set("starttime", performance.now())
 
     this.timeouts = [];
+
+    this.tut_container = document.querySelector("#tutorialcontainer")
+    this.anchor_container = document.querySelector("#anchoringcontainer")
+    this.main_container = document.querySelector("#mainscenecontainer")
     
     //find all patients to have access later
     this.patients = new Map();
@@ -45,8 +49,7 @@ AFRAME.registerComponent('timeline', {
     //log time
     this.timestamps.set("tutorial_start", performance.now())
     //make all things tutorial visible
-    let container = document.querySelector("#tutorialcontainer")
-    container.object3D.visible = true;
+    this.tut_container.object3D.visible = true;
 
     let t_patient = document.querySelector("#t_patient")
     let tutorialSound = document.querySelector("#s_tutorial").components.resonancesource.sourceNode
@@ -60,18 +63,21 @@ AFRAME.registerComponent('timeline', {
       }
     }, {once: true})
 
-    tutorialSound.play();
+    this.timeouts.push(setTimeout(() => {
+      tutorialSound.play();
+    }, 2000));
+    
 
     //make patient appear
     this.timeouts.push(setTimeout(() => {
       t_patient.components.patient.spawn()
-    }, 18000));
+    }, 20500));
     //patient has problem
     this.timeouts.push(setTimeout(() => {
       //pause IV sound, as it's part of the problem sound
       t_patient.components.patient.ivSound.pause()
-      t_patient.components.patient.haveProblem("Tutorial_problem", "#t_IValarm2", true, 7000, Infinity, false)
-    }, 19000));
+      t_patient.components.patient.haveProblem("Tutorial_problem", "#t_IValarm2", true, 10000, Infinity, false)
+    }, 21000));
 
     //wait for user to treat patient
     this.timeouts.push(setTimeout(() => {
@@ -85,7 +91,7 @@ AFRAME.registerComponent('timeline', {
           t_patient.remove();
         }, 4000));
       }, {once: true});
-    }, 32000));    
+    }, 35000));    
 
     tutorialSound.onended = (event) => {
       this.endTutorial();
@@ -100,16 +106,15 @@ AFRAME.registerComponent('timeline', {
     //do not carry over any timeouts into next scene
     this.clearAllTimeouts();
 
-    let container = document.querySelector("#tutorialcontainer")
-    container.object3D.visible = false;
+    
+    this.tut_container.object3D.visible = false;
   },
 
   startAnchoring: function() {
     //log time
     this.timestamps.set("anchoring_start", performance.now())
 
-    let container = document.querySelector("#anchoringcontainer")
-    container.object3D.visible = true;
+    this.anchor_container.object3D.visible = true;
 
     //create pink noise procedurally
     let context = this.el.sceneEl.components.resonancesystem.audioContext;
@@ -133,15 +138,14 @@ AFRAME.registerComponent('timeline', {
       gainNode.disconnect();
       this.endAnchoring();
       this.startScene();
-    }, 10000));
+    }, 25000));
 
   },
 
   endAnchoring: function() {
     //log time
     this.timestamps.set("anchoring_end", performance.now())
-    let container = document.querySelector("#anchoringcontainer")
-    container.object3D.visible = false;
+    this.anchor_container.object3D.visible = false;
   },
 
   startScene: function() {
@@ -149,8 +153,7 @@ AFRAME.registerComponent('timeline', {
     this.timestamps.set("scene_start", performance.now())
 
     //make all visible
-    let container = document.querySelector("#mainscenecontainer")
-    container.object3D.visible = true;
+    this.main_container.object3D.visible = true;
 
     //spawn patients
     this.patients.forEach((value, key) => {
@@ -159,6 +162,10 @@ AFRAME.registerComponent('timeline', {
         value.components.patient.spawn();
       }
     })
+
+    // -- start environment sounds -- //
+    document.querySelector("#ceilingfan").components.resonancesource.sourceNode.play()
+    
 
     //let patient 1 cough after 2 seconds, dont loop, stop after 1s
     //this.playPatientSound(1, "#coughing1", 2000, false, 1000);
@@ -171,26 +178,141 @@ AFRAME.registerComponent('timeline', {
     this.timeouts.push(setTimeout(() => {
       let problemName = "Patient 1 coughs";
       //unsuccesfully solve any problem that is still there
-      this.patients.get(1).components.patient.endProblem(false);
-      this.patients.get(1).components.patient.haveProblem(problemName, "#coughing1", true, 5000, 10000, true);
-      console.log('patient 1 coughs, loop sound, 5000 s treatment time, no end, not terminal');
+      this.patients.get(1).components.patient.haveProblem(problemName, "#coughing1", true, 5000, 8000, false);
     }, 2000));
 
     //--- let patient 1 have a problem
     //patient 1 coughs, loop sound, 5000 s treatment time, no end, not terminal
     this.timeouts.push(setTimeout(() => {
-      let problemName = "Patient 1 IV obscruction";
+      let problemName = "Patient 1 coughs again";
       //unsuccesfully solve any problem that is still there
-      this.patients.get(1).components.patient.endProblem(false);
       this.patients.get(1).components.patient.haveProblem(problemName, "#coughing1", true, 5000, 10000, false);
-      console.log('patient 1 coughs, loop sound, 5000 s treatment time, no end, not terminal');
     }, 15000));
+
+    this.timeouts.push(setTimeout(() => {
+      let problemName = "Patient 2 coughs";
+      //unsuccesfully solve any problem that is still there
+      this.patients.get(2).components.patient.haveProblem(problemName, "#coughing2", true, 3000, 10000, false);
+    }, 30000));
+
+    this.timeouts.push(setTimeout(() => {
+      let problemName = "Patient 1 IV alarm";
+      //unsuccesfully solve any problem that is still there
+      this.patients.get(1).components.patient.haveProblem(problemName, "#IValarmB1", true, 2000, 10000, false);
+    }, 42000));
+
+    this.timeouts.push(setTimeout(() => {
+      let problemName = "Patient 1 coughs";
+      this.patients.get(1).components.patient.haveProblem(problemName, "#coughing1", true, 2000, 10000, false);
+    }, 50000));
+
+    this.timeouts.push(setTimeout(() => {
+      let problemName = "Patient 2 coughs";
+      this.patients.get(2).components.patient.haveProblem(problemName, "#coughing2", true, 8000, 15000, false);
+    }, 60000));
+
+    this.timeouts.push(setTimeout(() => {
+      let problemName = "Patient 1 coughs";
+      this.patients.get(1).components.patient.haveProblem(problemName, "#coughing1", true, 3000, 10000, false);
+    }, 72000));
+
+    this.timeouts.push(setTimeout(() => {
+      let problemName = "Patient 1 coughs";
+      this.patients.get(1).components.patient.haveProblem(problemName, "#coughing1", true, 6000, 15000, false);
+    }, 78000));
+
+    this.timeouts.push(setTimeout(() => {
+      let problemName = "Patient 2 coughs";
+      this.patients.get(2).components.patient.haveProblem(problemName, "#coughing2", true, 8000, 10000, false);
+    }, 83000));
+
+    this.timeouts.push(setTimeout(() => {
+      let problemName = "Patient 1 coughs";
+      this.patients.get(1).components.patient.haveProblem(problemName, "#coughing1", true, 5000, 20000, false);
+    }, 100000));
     
+    // ---- PATIENT 3 ----
+    this.timeouts.push(setTimeout(() => {
+      let problemName = "Patient 3 coughs";
+      //unsuccesfully solve any problem that is still there
+      this.patients.get(3).components.patient.haveProblem(problemName, "#coughing3", true, 4000, 15000, false);
+      console.log('patient 3 coughs, loop sound, 5 s treatment time, 15s time, terminal');
+    }, 55000));
+
+    this.timeouts.push(setTimeout(() => {
+      let problemName = "Patient 4 coughs";
+      //unsuccesfully solve any problem that is still there
+      this.patients.get(4).components.patient.haveProblem(problemName, "#coughing4", true, 2000, 15000, false);
+      console.log('patient 3 coughs, loop sound, 5 s treatment time, 15s time, terminal');
+    }, 85000));
+
+    this.timeouts.push(setTimeout(() => {
+      let problemName = "Patient 3 coughs";
+      //unsuccesfully solve any problem that is still there
+      this.patients.get(3).components.patient.haveProblem(problemName, "#coughing3", true, 2000, 15000, false);
+      console.log('patient 3 coughs, loop sound, 5 s treatment time, 15s time, terminal');
+    }, 90000));
+
+    this.timeouts.push(setTimeout(() => {
+      let problemName = "Patient 4 IV alarm";
+      //unsuccesfully solve any problem that is still there
+      this.patients.get(4).components.patient.haveProblem(problemName, "#IValarmB4", true, 5000, 15000, false);
+      console.log('patient 3 coughs, loop sound, 5 s treatment time, 15s time, terminal');
+    }, 100000));
+
+    this.timeouts.push(setTimeout(() => {
+      let problemName = "Patient 3 IV alarm";
+      //unsuccesfully solve any problem that is still there
+      this.patients.get(3).components.patient.haveProblem(problemName, "#IValarmB3", true, 8000, 20000, false);
+    }, 120000));    
+
+    this.timeouts.push(setTimeout(() => {
+      let problemName = "Patient 4 flatline could be terminal";
+      //unsuccesfully solve any problem that is still there
+      this.patients.get(4).components.patient.haveProblem(problemName, "#ekgFlatline4", false, 4000, 15000, true);
+    }, 125000));
+
+    this.timeouts.push(setTimeout(() => {
+      let problemName = "Patient 1 coughs";
+      this.patients.get(1).components.patient.haveProblem(problemName, "#coughing1", true, 2000, 20000, false);
+    }, 130000));
+
+    this.timeouts.push(setTimeout(() => {
+      let problemName = "Patient 3 IV alarm";
+      //unsuccesfully solve any problem that is still there
+      this.patients.get(3).components.patient.haveProblem(problemName, "#IValarmB3", true, 5000, 20000, false);
+    }, 135000));  
+
+    this.timeouts.push(setTimeout(() => {
+      let problemName = "Patient 1 flatline could be terminal";
+      //unsuccesfully solve any problem that is still there
+      this.patients.get(1).components.patient.haveProblem(problemName, "#ekgFlatline1", true, 5000, 20000, true);
+    }, 141000));  
+
+    this.timeouts.push(setTimeout(() => {
+      let problemName = "Patient 3 IV alarm";
+      //unsuccesfully solve any problem that is still there
+      this.patients.get(3).components.patient.haveProblem(problemName, "#IValarmB3", true, 5000, 20000, false);
+    }, 150000)); 
+
+
+    this.timeouts.push(setTimeout(() => {
+      let problemName = "Patient 2 coughs";
+      this.patients.get(2).components.patient.haveProblem(problemName, "#coughing2", true, 6000, 20000, false);
+    }, 149000));
+
+    this.timeouts.push(setTimeout(() => {
+      let problemName = "Patient 3 IV alarm";
+      //unsuccesfully solve any problem that is still there
+      this.patients.get(3).components.patient.haveProblem(problemName, "#coughing3", true, 3000, 20000, false);
+    }, 158000));
+
+
 
     // ---- END OF MAIN SCENE TIMEOUT ----
     this.timeouts.push(setTimeout(() => {
       this.endScene();
-    }, 20000));  //TODO set reasonable timeout
+    }, 170000));  //TODO set reasonable timeout
 
   },
 
@@ -198,7 +320,10 @@ AFRAME.registerComponent('timeline', {
     //log time
     this.timestamps.set("scene_end", performance.now())
 
+    console.log("Main Scene ended.")
+
     //stop all sounds
+    this.el.components.resonancesystem.stop();
 
     //fade to black?
 
@@ -215,8 +340,8 @@ AFRAME.registerComponent('timeline', {
   },
 
   run: function() {
-    this.startTutorial()
-
+    //start tutorial after 2 seconds
+    this.startTutorial();
   },
 
   /**
