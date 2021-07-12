@@ -468,7 +468,7 @@ AFRAME.registerComponent('narrator', {
         autoplay: false,
         gain: 1
     });
-    this.goodworkEl.setAttribute('material',{opacity: 0});
+    this.goodworkEl.object3D.visible = false;
     this.el.appendChild(this.goodworkEl);
   },
   
