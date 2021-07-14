@@ -27,7 +27,9 @@
 	<script src="components/heartrate.js">
 	</script>
   <script src="components/noise.js">
-	</script>
+  </script>
+  <script src="components/camswitch.js">
+  </script>
 </head>
 
 <body style='margin : 0px; overflow: hidden;'>
@@ -44,10 +46,10 @@
 
 
   
-	<a-scene heartratemonitor pairdevice resonancesystem timeline serverlogger startexperience stats inspector>
+	<a-scene background="color: white" heartratemonitor pairdevice resonancesystem timeline serverlogger startexperience camswitch stats inspector>
 		<a-assets timeout="5000">
 			<!-- preload sounds and assets here -->
-      <audio id="tutorial" src='resources/tutorial.ogg' onended=""></audio>
+      <audio id="tutorial" src='resources/tutorial.mp3' onended="" preload="auto"></audio>
       <audio id="t_IValarm2" src='resources/IV_alarm2.wav'></audio>
       <audio id="IVpump99" src='resources/IVpump.wav'></audio>
       <audio id="ekgBeep99" src='resources/singleEKGbeepPREsilence2s.wav'></audio>
@@ -90,6 +92,10 @@
 			</a-entity>
 		</a-entity>
 
+    <!-- spectator cam -->
+    <a-entity camera="active: false" position="0 4 0" rotation="-90 0 0"></a-entity>
+
+
     <!-- ----TUTORIAL CONTENT---- -->
     <a-entity id="tutorialcontainer" visible="false">
        <!-- narrator -->
@@ -102,7 +108,6 @@
 
     <!-- ----ANCHORING CONTENT---- -->
     <a-entity id="anchoringcontainer" visible="false">
-      <a-sky color="#777777"></a-sky>
     </a-entity>
 
 

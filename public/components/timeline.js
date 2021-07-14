@@ -56,12 +56,13 @@ AFRAME.registerComponent('timeline', {
 
     //make skippable
     document.addEventListener('keyup', event => {
-      if (event.code === 'Space' && tutorialSound) {
+      if (event.code === 'KeyN' && tutorialSound) {
         tutorialSound.pause();
         this.endTutorial();
         this.startAnchoring();
       }
     }, {once: true})
+    
 
     this.timeouts.push(setTimeout(() => {
       tutorialSound.play();
@@ -82,14 +83,17 @@ AFRAME.registerComponent('timeline', {
     //wait for user to treat patient
     this.timeouts.push(setTimeout(() => {
       tutorialSound.pause();
-      this.el.addEventListener('problemresolved', event => {
+      document.addEventListener('problemresolvedsuccessful', event => {
         //play IVpump again
         event.target.components.patient.ivSound.play();
         //continue tutorial
-        tutorialSound.play();
+        tutorialSound.currentTime = 36;
         this.timeouts.push(setTimeout(() => {
-          t_patient.remove();
-        }, 4000));
+          tutorialSound.play();
+          this.timeouts.push(setTimeout(() => {
+            t_patient.remove();
+          }, 4000));
+        }, 1500));
       }, {once: true});
     }, 35000));    
 
@@ -116,6 +120,9 @@ AFRAME.registerComponent('timeline', {
 
     this.anchor_container.object3D.visible = true;
 
+    //make background middle gray
+    this.el.sceneEl.setAttribute('background','color', '#777777');
+
     //create pink noise procedurally
     let context = this.el.sceneEl.components.resonancesystem.audioContext;
     let pinkNoise = context.createPinkNoise();
@@ -126,7 +133,7 @@ AFRAME.registerComponent('timeline', {
 
      //make skippable
     document.addEventListener('keyup', event => {
-      if (event.code === 'Space' && pinkNoise) {
+      if (event.code === 'KeyN' && pinkNoise) {
         gainNode.disconnect();
         this.endAnchoring();
         this.startScene();
@@ -146,6 +153,7 @@ AFRAME.registerComponent('timeline', {
     //log time
     this.timestamps.set("anchoring_end", performance.now())
     this.anchor_container.object3D.visible = false;
+    this.el.sceneEl.setAttribute('background','color', 'white');
   },
 
   startScene: function() {
