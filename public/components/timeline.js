@@ -82,14 +82,17 @@ AFRAME.registerComponent('timeline', {
     //wait for user to treat patient
     this.timeouts.push(setTimeout(() => {
       tutorialSound.pause();
-      this.el.addEventListener('problemresolved', event => {
+      document.addEventListener('problemresolvedsuccessful', event => {
         //play IVpump again
         event.target.components.patient.ivSound.play();
         //continue tutorial
-        tutorialSound.play();
+        tutorialSound.currentTime = 36;
         this.timeouts.push(setTimeout(() => {
-          t_patient.remove();
-        }, 4000));
+          tutorialSound.play();
+          this.timeouts.push(setTimeout(() => {
+            t_patient.remove();
+          }, 4000));
+        }, 1500));
       }, {once: true});
     }, 35000));    
 
